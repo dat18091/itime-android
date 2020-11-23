@@ -4,15 +4,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:itime/apps/a2_register/a2_register_screen.dart';
+import 'package:itime/apps/a3_home/a3_home_screen.dart';
+import 'package:itime/commons/constants.dart';
 
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
-import 'package:itime/apps/a1_login/a1_login_screen.dart';
-import 'package:itime/commons/constants.dart';
 import 'package:itime/commons/special_convert.dart';
 import 'package:itime/models/Company.dart';
 import 'package:itime/services/data_services.dart';
 import 'package:itime/utils/network_util.dart';
+import 'package:itime/widgets/tabbar_custom.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /**
  * @author datnq
@@ -21,30 +23,22 @@ import 'package:itime/utils/network_util.dart';
  * Modification Logs
  * DATE   		AUTHOR 		DESCRIPTION
  * ------------------------------------
- * 23/11/2020	DatNQ		  register page
+ * 23/11/2020	DatNQ		  login page
  */
 NetworkUtil _netUtil = new NetworkUtil();
-class RegisterScreen extends StatefulWidget {
+class LoginScreen extends StatefulWidget {
   @override
-  _RegisterScreenState createState() => _RegisterScreenState();
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _LoginScreenState extends State<LoginScreen> {
   GlobalKey<FormState> _formKey = new GlobalKey();
-
-  TextEditingController tenNhanVien = new TextEditingController();
-  TextEditingController tenDangNhap = new TextEditingController();
-  TextEditingController emailNhanVien = new TextEditingController();
-  TextEditingController soDienThoaiNhanVien = new TextEditingController();
-  TextEditingController matKhau = new TextEditingController();
 
   String _mySelection;
   var _companies = new List<Company>();
 
-  String _name;
-  String _phone;
-  String _email;
-  String _password;
+  TextEditingController tenDangNhap = new TextEditingController();
+  TextEditingController matKhau = new TextEditingController();
 
   @override
   void initState() {
@@ -57,6 +51,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    /**
+     * Select company
+     * */
     Widget _selectCompany() {
       return new Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,8 +72,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ],
             ),
             height: size.height / 13,
-            padding: EdgeInsets.only(left: 15.0, right: 15.0),
-            child: DropdownButtonHideUnderline(
+            padding: new EdgeInsets.only(left: 15.0, right: 15.0),
+            child: new DropdownButtonHideUnderline(
               child: new DropdownButton<String>(
                 isExpanded: true,
                 isDense: false,
@@ -97,7 +94,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   });
                 },
                 value: _mySelection,
-                hint: Text("-- Chọn công ty --"),
+                hint: new Text("-- Chọn công ty --"),
               ),
             ),
           ),
@@ -105,58 +102,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
     }
 
-    Widget _buildFullnameInput() {
-      return new Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          new Container(
-            alignment: Alignment.centerLeft,
-            decoration: new BoxDecoration(
-              color: new HexColor("FFCDD2"),
-              borderRadius: new BorderRadius.circular(30.0),
-              boxShadow: [
-                new BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 6.0,
-                  offset: new Offset(0, 2),
-                ),
-              ],
-            ),
-            height: size.height / 13,
-            child: new TextFormField(
-              keyboardType: TextInputType.text,
-              style: new TextStyle(
-                color: wTextColor,
-                fontSize: kTextSize - 2,
-              ),
-              decoration: new InputDecoration(
-                border: InputBorder.none,
-                contentPadding: new EdgeInsets.only(top: 14.0),
-                prefixIcon: new Icon(
-                  Icons.person,
-                  color: Colors.white,
-                ),
-                hintText: 'Nhập tên đầy đủ',
-                hintStyle: new TextStyle(
-                  color: wTextColor,
-                  fontSize: kTextSize - 2,
-                ),
-              ),
-              validator: (String value) {
-                if (value.isEmpty) {
-                  return 'Name is required.';
-                }
-              },
-              onSaved: (String value) {
-                _name = value;
-              },
-              controller: tenNhanVien,
-            ),
-          ),
-        ],
-      );
-    }
-
+    /**
+     * Username
+     * */
     Widget _buildUsernameInput() {
       return new Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,110 +149,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
     }
 
-    Widget _buildPhoneInput() {
-      return new Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          new Container(
-            alignment: Alignment.centerLeft,
-            decoration: new BoxDecoration(
-              color: new HexColor("FFCDD2"),
-              borderRadius: new BorderRadius.circular(30.0),
-              boxShadow: [
-                new BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 6.0,
-                  offset: new Offset(0, 2),
-                ),
-              ],
-            ),
-            height: size.height / 13,
-            child: new TextFormField(
-              keyboardType: TextInputType.phone,
-              style: new TextStyle(
-                color: wTextColor,
-                fontSize: kTextSize - 2,
-              ),
-              decoration: new InputDecoration(
-                border: InputBorder.none,
-                contentPadding: new EdgeInsets.only(top: 14.0),
-                prefixIcon: new Icon(
-                  Icons.phone,
-                  color: Colors.white,
-                ),
-                hintText: 'Nhập số điện thoại',
-                hintStyle: new TextStyle(
-                  color: wTextColor,
-                  fontSize: kTextSize - 2,
-                ),
-              ),
-              controller: soDienThoaiNhanVien,
-            ),
-          ),
-        ],
-      );
-    }
-
-    Widget _buildEmailInput() {
-      return new Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          new Container(
-            alignment: Alignment.centerLeft,
-            decoration: new BoxDecoration(
-              color: new HexColor("FFCDD2"),
-              borderRadius: new BorderRadius.circular(30.0),
-              boxShadow: [
-                new BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 6.0,
-                  offset: new Offset(0, 2),
-                ),
-              ],
-            ),
-            height: size.height / 13,
-            child: new TextFormField(
-              keyboardType: TextInputType.emailAddress,
-              style: new TextStyle(
-                color: wTextColor,
-                fontSize: kTextSize - 2,
-              ),
-              decoration: new InputDecoration(
-                border: InputBorder.none,
-                contentPadding: new EdgeInsets.only(top: 14.0),
-                prefixIcon: new Icon(
-                  Icons.person,
-                  color: Colors.white,
-                ),
-                hintText: 'Nhập vào email',
-                hintStyle: new TextStyle(
-                  color: wTextColor,
-                  fontSize: kTextSize - 2,
-                ),
-              ),
-              validator: (String value) {
-                if (value.isEmpty) {
-                  return 'Email is required';
-                }
-
-                if (!RegExp(
-                        "^[a-zA-Z0-9.!#%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*")
-                    .hasMatch(value)) {
-                  return 'Enter a valid email address';
-                }
-                // validator has to return something :)
-                return null;
-              },
-              onSaved: (String value) {
-                _email = value;
-              },
-              controller: emailNhanVien,
-            ),
-          ),
-        ],
-      );
-    }
-
+    /**
+     * Password
+     * */
     Widget _buildPasswordInput() {
       return new Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -336,21 +183,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Icons.lock,
                   color: Colors.white,
                 ),
-                hintText: 'Nhập vào mật khẩu',
+                hintText: 'Nhập mật khẩu',
                 hintStyle: new TextStyle(
                   color: wTextColor,
                   fontSize: kTextSize - 2,
                 ),
               ),
-              keyboardType: TextInputType.visiblePassword,
-              validator: (String value) {
-                if (value.isEmpty) {
-                  return 'Password is required';
-                }
-              },
-              onSaved: (String value) {
-                _password = value;
-              },
               controller: matKhau,
             ),
           ),
@@ -358,14 +196,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
     }
 
-    Widget _buildRegisterBtn() {
+    /**
+     * Login button
+     * */
+    Widget _buildLoginBtn() {
       return new Container(
         padding: new EdgeInsets.symmetric(vertical: 20.0),
         width: double.infinity,
         child: new RaisedButton(
           elevation: 5.0,
-          onPressed: () {
-            register(context);
+          onPressed: (){
+            login(context);
           },
           padding: new EdgeInsets.all(15.0),
           shape: new RoundedRectangleBorder(
@@ -373,26 +214,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
           color: Colors.white,
           child: new Text(
-            'ĐĂNG KÝ',
+            'ĐĂNG NHẬP',
             style: new TextStyle(
               color: new HexColor("FF4E44"),
               letterSpacing: 1.5,
               fontSize: 18.0,
               fontWeight: FontWeight.bold,
-              fontFamily: 'OpenSans',
             ),
           ),
         ),
       );
     }
 
-    Widget _buildLoginBtn() {
+    /**
+     * Link register
+     * */
+    Widget _buildSignupBtn() {
       return new GestureDetector(
-        onTap: () {
+        onTap: (){
           Navigator.push(
             context,
             new MaterialPageRoute(
-              builder: (context) => new LoginScreen(),
+              builder: (context) => new RegisterScreen(),
             ),
           );
         },
@@ -400,7 +243,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           text: new TextSpan(
             children: [
               new TextSpan(
-                text: 'Đã có tài khoản? ',
+                text: 'Chưa có tài khoản? ',
                 style: new TextStyle(
                   color: Colors.black,
                   fontSize: 18.0,
@@ -408,7 +251,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               new TextSpan(
-                text: 'Đăng Nhập',
+                text: 'Đăng Ký',
                 style: new TextStyle(
                   color: new HexColor("FF4E44"),
                   fontSize: 18.0,
@@ -459,19 +302,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: new Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          _selectCompany(),
+                          new Image.asset(
+                            "assets/images/timelab.png",
+                            height: size.height * 0.25,
+                          ),
                           new SizedBox(height: 10.0),
-                          _buildFullnameInput(),
+                          _selectCompany(),
                           new SizedBox(height: 10.0),
                           _buildUsernameInput(),
                           new SizedBox(height: 10.0),
-                          _buildPhoneInput(),
-                          new SizedBox(height: 10.0),
-                          _buildEmailInput(),
-                          new SizedBox(height: 10.0),
                           _buildPasswordInput(),
-                          _buildRegisterBtn(),
                           _buildLoginBtn(),
+                          _buildSignupBtn(),
                         ],
                       ),
                     ),
@@ -485,103 +327,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  void register(BuildContext context) async {
-    var now = new DateTime.now();
-    var formatter = new DateFormat('yyyy-MM-dd HH:mm:ss');
+  void login(BuildContext context) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences.setString("tenDangNhap", tenDangNhap.text);
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
       Map parameters = {
-        'what': 108,
-        'ten_nhan_vien': tenNhanVien.text,
+        'what': 109,
         'ten_dang_nhap': tenDangNhap.text,
-        'email_nhan_vien': emailNhanVien.text,
-        'so_dien_thoai_nhan_vien': soDienThoaiNhanVien.text,
         'mat_khau': convertStringToMD5(matKhau.text),
-        'hoat_dong': 1,
-        'quyen_truong_phong': 1,
-        'created_at': formatter.format(now),
         'ma_cong_ty': _mySelection,
       };
-      var input = jsonEncode(parameters);
-      print(input);
-      _netUtil.get(input).then(
-        (dynamic res) {
-          tenNhanVien.clear();
+      print(parameters);
+      _netUtil.get(jsonEncode(parameters)).then((dynamic res) {
+        if (res.length > 0) {
           tenDangNhap.clear();
           matKhau.clear();
-          emailNhanVien.clear();
-          tenNhanVien.clear();
           showAlert(
             title: "Thông báo",
-            content: "Đăng ký thành công.",
+            content: "Đăng nhập thành công.",
             onPress: () {
               Navigator.push(
                 context,
                 new MaterialPageRoute(
-                  builder: (context) => new LoginScreen(),
+                  builder: (context) => new TabbarCustom(),
                 ),
               );
             },
             subOnPress: null,
           );
-        },
-      );
+        }
+      });
     }
-  }
-
-  void checkValueExists() async {
-    Map parameters = {
-      'what': 107,
-      'ten_dang_nhap': tenDangNhap.text,
-      'email_nhan_vien': emailNhanVien.text,
-      'so_dien_thoai_nhan_vien': soDienThoaiNhanVien.text,
-    };
-    print(parameters);
-    var input = jsonEncode(parameters);
-    print(input);
-    _netUtil.get(input).then((dynamic res) async {
-      if (res.length > 0) {
-        //tai khoan da ton tai
-        showDialog(
-          context: context,
-          child: new CupertinoAlertDialog(
-            // title: new Text("Thông báo"),
-            content: new Container(
-              // height: 150,
-              height: 120,
-              child: new Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Image.asset("assets/icons/successful.png", width: 50, height: 50),
-                  new SizedBox(height: 10.0),
-                  new Text(
-                    "Tài khoản đã tồn tại.",
-                    style: new TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-            ),
-            actions: <Widget>[
-              new FlatButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: new Text("OK"),
-              ),
-            ],
-          ),
-        );
-      } else {
-        register(context);
-      }
-    });
   }
 
   Widget showAlert(
       {String title,
-      String content,
-      VoidCallback onPress,
-      VoidCallback subOnPress}) {
+        String content,
+        VoidCallback onPress,
+        VoidCallback subOnPress}) {
     showDialog(
       context: context,
       child: new CupertinoAlertDialog(
