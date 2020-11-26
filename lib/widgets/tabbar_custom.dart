@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:itime/apps/a3_home/a3_home_screen.dart';
+import 'package:itime/apps/a4_news_feed/a4_news_feed_screen.dart';
+import 'package:itime/apps/a5_notification/a5_notification_screen.dart';
+import 'package:itime/apps/a6_message/a6_message_screen.dart';
+import 'package:itime/apps/a7_personal/a7_personal_screen.dart';
 
 class TabbarCustom extends StatefulWidget {
   @override
@@ -11,14 +15,10 @@ class _TabbarCustomState extends State<TabbarCustom> {
   int _selectedIndex = 0;
   final tabs = [
     new HomeScreen(),
-//    new NewFeeds(),
-//    new NotificationManager(),
-//    new ContactScreen(),
-//    new ProfileManager(),
-    new Text(""),
-    new Text(""),
-    new Text(""),
-    new Text(""),
+    new NewFeeds(),
+    new NotificationManager(),
+    new MessageScreen(),
+    new PersonalScreen(),
   ];
 
   @override

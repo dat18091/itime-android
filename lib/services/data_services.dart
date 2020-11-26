@@ -29,7 +29,7 @@ class DataServices {
     }
   }
 
-  static Future<List<Employee>> getEmployeeByUserame() async {
+  static Future<List<Employee>> getEmployeeByUsername() async {
     try {
       Map param = {'what': 110};
       var input = jsonEncode(param);

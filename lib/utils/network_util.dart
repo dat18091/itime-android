@@ -5,11 +5,13 @@ import 'package:http/http.dart' as http;
 
 // https://medium.com/@kashifmin/flutter-login-app-using-rest-api-and-sqflite-b4815aed2149
 final BASE_URL_GET =
-    "http://192.168.1.190:8080/api/izi-timekeeper/Controller/GetAllByWhat.php";
+    "http://172.20.46.9:8080/api/izi-timekeeper/Controller/GetAllByWhat.php";
 final BASE_URL_POST =
-    "http://192.168.1.190:8080/api/izi-timekeeper/Controller/GetAllByWhat.php";
+    "http://172.20.46.9:8080/api/izi-timekeeper/Controller/GetAllByWhat.php";
 final _API_KEY = "somerandomkey";
-
+//home ip: 192.168.1.190
+//library ip : 172.20.46.9
+//company ip : 192.168.0.108
 class NetworkUtil {
   // next three lines makes this class a Singleton
   static NetworkUtil _instance = new NetworkUtil.internal();

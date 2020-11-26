@@ -8,7 +8,6 @@ import 'package:itime/apps/a2_register/a2_register_screen.dart';
 import 'package:itime/apps/a3_home/a3_home_screen.dart';
 import 'package:itime/commons/constants.dart';
 
-import 'package:http/http.dart' as http;
 import 'package:itime/commons/special_convert.dart';
 import 'package:itime/models/Company.dart';
 import 'package:itime/services/data_services.dart';
@@ -26,6 +25,7 @@ import 'package:shared_preferences/shared_preferences.dart';
  * 23/11/2020	DatNQ		  login page
  */
 NetworkUtil _netUtil = new NetworkUtil();
+
 class LoginScreen extends StatefulWidget {
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -55,50 +55,55 @@ class _LoginScreenState extends State<LoginScreen> {
      * Select company
      * */
     Widget _selectCompany() {
-      return new Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          new Container(
-            alignment: Alignment.centerLeft,
-            decoration: new BoxDecoration(
-              color: new HexColor("FFCDD2"),
-              borderRadius: new BorderRadius.circular(30.0),
-              boxShadow: [
-                new BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 6.0,
-                  offset: new Offset(0, 2),
-                ),
-              ],
-            ),
-            height: size.height / 13,
-            padding: new EdgeInsets.only(left: 15.0, right: 15.0),
-            child: new DropdownButtonHideUnderline(
-              child: new DropdownButton<String>(
-                isExpanded: true,
-                isDense: false,
-                items: _companies.map((item) {
-                  return new DropdownMenuItem(
-                    child: new Text(
-                      "${item.tenCongTy}",
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: false,
-                      maxLines: 3,
+      return new FutureBuilder(
+        future: DataServices.getAllCompanies(),
+        builder: (context, snapshot) {
+          return new Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              new Container(
+                alignment: Alignment.centerLeft,
+                decoration: new BoxDecoration(
+                  color: new HexColor("FFCDD2"),
+                  borderRadius: new BorderRadius.circular(30.0),
+                  boxShadow: [
+                    new BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 6.0,
+                      offset: new Offset(0, 2),
                     ),
-                    value: item.id.toString(),
-                  );
-                }).toList(),
-                onChanged: (newVal) {
-                  setState(() {
-                    _mySelection = newVal;
-                  });
-                },
-                value: _mySelection,
-                hint: new Text("-- Chọn công ty --"),
+                  ],
+                ),
+                height: size.height / 13,
+                padding: new EdgeInsets.only(left: 15.0, right: 15.0),
+                child: new DropdownButtonHideUnderline(
+                  child: new DropdownButton<String>(
+                    isExpanded: true,
+                    isDense: false,
+                    items: _companies.map((item) {
+                      return new DropdownMenuItem(
+                        child: new Text(
+                          "${item.tenCongTy}",
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: false,
+                          maxLines: 3,
+                        ),
+                        value: item.id.toString(),
+                      );
+                    }).toList(),
+                    onChanged: (newVal) {
+                      setState(() {
+                        _mySelection = newVal;
+                      });
+                    },
+                    value: _mySelection,
+                    hint: new Text("-- Chọn công ty --"),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       );
     }
 
@@ -205,7 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
         width: double.infinity,
         child: new RaisedButton(
           elevation: 5.0,
-          onPressed: (){
+          onPressed: () {
             login(context);
           },
           padding: new EdgeInsets.all(15.0),
@@ -231,7 +236,7 @@ class _LoginScreenState extends State<LoginScreen> {
      * */
     Widget _buildSignupBtn() {
       return new GestureDetector(
-        onTap: (){
+        onTap: () {
           Navigator.push(
             context,
             new MaterialPageRoute(
@@ -363,9 +368,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget showAlert(
       {String title,
-        String content,
-        VoidCallback onPress,
-        VoidCallback subOnPress}) {
+      String content,
+      VoidCallback onPress,
+      VoidCallback subOnPress}) {
     showDialog(
       context: context,
       child: new CupertinoAlertDialog(

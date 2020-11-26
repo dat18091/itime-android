@@ -24,6 +24,7 @@ import 'package:itime/utils/network_util.dart';
  * 23/11/2020	DatNQ		  register page
  */
 NetworkUtil _netUtil = new NetworkUtil();
+
 class RegisterScreen extends StatefulWidget {
   @override
   _RegisterScreenState createState() => _RegisterScreenState();
@@ -58,50 +59,55 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     Widget _selectCompany() {
-      return new Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          new Container(
-            alignment: Alignment.centerLeft,
-            decoration: new BoxDecoration(
-              color: new HexColor("FFCDD2"),
-              borderRadius: new BorderRadius.circular(30.0),
-              boxShadow: [
-                new BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 6.0,
-                  offset: new Offset(0, 2),
-                ),
-              ],
-            ),
-            height: size.height / 13,
-            padding: EdgeInsets.only(left: 15.0, right: 15.0),
-            child: DropdownButtonHideUnderline(
-              child: new DropdownButton<String>(
-                isExpanded: true,
-                isDense: false,
-                items: _companies.map((item) {
-                  return new DropdownMenuItem(
-                    child: new Text(
-                      "${item.tenCongTy}",
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: false,
-                      maxLines: 3,
+      return new FutureBuilder(
+        future: DataServices.getAllCompanies(),
+        builder: (context, snapshot) {
+          return new Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              new Container(
+                alignment: Alignment.centerLeft,
+                decoration: new BoxDecoration(
+                  color: new HexColor("FFCDD2"),
+                  borderRadius: new BorderRadius.circular(30.0),
+                  boxShadow: [
+                    new BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 6.0,
+                      offset: new Offset(0, 2),
                     ),
-                    value: item.id.toString(),
-                  );
-                }).toList(),
-                onChanged: (newVal) {
-                  setState(() {
-                    _mySelection = newVal;
-                  });
-                },
-                value: _mySelection,
-                hint: Text("-- Chọn công ty --"),
+                  ],
+                ),
+                height: size.height / 13,
+                padding: new EdgeInsets.only(left: 15.0, right: 15.0),
+                child: new DropdownButtonHideUnderline(
+                  child: new DropdownButton<String>(
+                    isExpanded: true,
+                    isDense: false,
+                    items: _companies.map((item) {
+                      return new DropdownMenuItem(
+                        child: new Text(
+                          "${item.tenCongTy}",
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: false,
+                          maxLines: 3,
+                        ),
+                        value: item.id.toString(),
+                      );
+                    }).toList(),
+                    onChanged: (newVal) {
+                      setState(() {
+                        _mySelection = newVal;
+                      });
+                    },
+                    value: _mySelection,
+                    hint: new Text("-- Chọn công ty --"),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       );
     }
 
