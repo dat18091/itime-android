@@ -1,160 +1,161 @@
 import 'dart:convert';
 
-
 List<Employee> employeeFromJson(String str) => List<Employee>.from(json.decode(str).map((x) => Employee.fromJson(x)));
 
 String employeeToJson(List<Employee> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 class Employee {
+  Employee({
+    this.id,
+    this.name,
+    this.phone,
+    this.email,
+    this.dateOfBirth,
+    this.gender,
+    this.image,
+    this.displayOrder,
+    this.identityCard,
+    this.dateReleaseId,
+    this.locatedReleaseId,
+    this.passport,
+    this.dateReleasePassport,
+    this.dateExpiredPassport,
+    this.locatedReleasePassport,
+    this.companyId,
+    this.note,
+    this.areaId,
+    this.branchId,
+    this.departmentId,
+    this.accessgroupId,
+    this.positionId,
+    this.active,
+    this.actingChief,
+    this.bankName,
+    this.bankNumber,
+    this.nameOfBank,
+    this.branchOfBank,
+    this.username,
+    this.password,
+    this.provinceId,
+    this.districtId,
+    this.createdAt,
+    this.updatedAt,
+    this.currentAddress,
+    this.backgroundImage,
+  });
 
-  String maNhanVien;
-  String tenNhanVien;
-  String soDienThoaiNhanVien;
-  String emailNhanVien;
-  DateTime ngaySinhNhanVien;
-  bool gioiTinhNhanVien;
-  String hinhAnhNhanVien;
-  String thuTuHienThiNv;
-  String soCmnd;
-  DateTime ngayCapCmnd;
-  String noiCapCmnd;
-  String soHoChieu;
-  DateTime ngayCapHoChieu;
-  DateTime ngayHetHanHoChieu;
-  String noiCapHoChieu;
-  BigInt maCongTy;
-  String ghiChuNhanVien;
-  BigInt maVung;
-  BigInt maChiNhanh;
-  BigInt maPhongBan;
-  BigInt maNhomTruyCap;
-  BigInt maChucDanh;
-  String hoatDong;
-  String quyenTruongPhong;
-  String chuTaiKhoanNganHang;
-  String soTaiKhoanNganHang;
-  String tenNganHang;
-  String chiNhanhNganHang;
-  String tenDangNhap;
-  String matKhau;
-  BigInt provinceId;
-  BigInt districtId;
+  String id;
+  String name;
+  String phone;
+  String email;
+  DateTime dateOfBirth;
+  String gender;
+  String image;
+  String displayOrder;
+  String identityCard;
+  DateTime dateReleaseId;
+  String locatedReleaseId;
+  String passport;
+  DateTime dateReleasePassport;
+  DateTime dateExpiredPassport;
+  String locatedReleasePassport;
+  String companyId;
+  String note;
+  String areaId;
+  String branchId;
+  String departmentId;
+  String accessgroupId;
+  String positionId;
+  String active;
+  String actingChief;
+  String bankName;
+  String bankNumber;
+  String nameOfBank;
+  String branchOfBank;
+  String username;
+  String password;
+  String provinceId;
+  String districtId;
   DateTime createdAt;
   DateTime updatedAt;
-  String diaChiHienTai;
+  String currentAddress;
+  String backgroundImage;
 
-  Employee(
-      {this.maNhanVien,
-        this.tenNhanVien,
-        this.soDienThoaiNhanVien,
-        this.emailNhanVien,
-        this.ngaySinhNhanVien,
-        this.gioiTinhNhanVien,
-        this.hinhAnhNhanVien,
-        this.thuTuHienThiNv,
-        this.soCmnd,
-        this.ngayCapCmnd,
-        this.noiCapCmnd,
-        this.soHoChieu,
-        this.ngayCapHoChieu,
-        this.ngayHetHanHoChieu,
-        this.noiCapHoChieu,
-        this.maCongTy,
-        this.ghiChuNhanVien,
-        this.maVung,
-        this.maChiNhanh,
-        this.maPhongBan,
-        this.maNhomTruyCap,
-        this.maChucDanh,
-        this.hoatDong,
-        this.quyenTruongPhong,
-        this.chuTaiKhoanNganHang,
-        this.soTaiKhoanNganHang,
-        this.tenNganHang,
-        this.chiNhanhNganHang,
-        this.tenDangNhap,
-        this.matKhau,
-        this.provinceId,
-        this.districtId,
-        this.createdAt,
-        this.updatedAt,
-        this.diaChiHienTai});
+  factory Employee.fromJson(Map<String, dynamic> json) => Employee(
+    id: json["id"],
+    name: json["name"],
+    phone: json["phone"],
+    email: json["email"],
+    dateOfBirth: DateTime.parse(json["date_of_birth"]),
+    gender: json["gender"],
+    image: json["image"],
+    displayOrder: json["display_order"],
+    identityCard: json["identity_card"],
+    dateReleaseId: DateTime.parse(json["date_release_id"]),
+    locatedReleaseId: json["located_release_id"],
+    passport: json["passport"],
+    dateReleasePassport: DateTime.parse(json["date_release_passport"]),
+    dateExpiredPassport: DateTime.parse(json["date_expired_passport"]),
+    locatedReleasePassport: json["located_release_passport"],
+    companyId: json["company_id"],
+    note: json["note"],
+    areaId: json["area_id"],
+    branchId: json["branch_id"],
+    departmentId: json["department_id"],
+    accessgroupId: json["accessgroup_id"],
+    positionId: json["position_id"],
+    active: json["active"],
+    actingChief: json["acting_chief"],
+    bankName: json["bank_name"],
+    bankNumber: json["bank_number"],
+    nameOfBank: json["name_of_bank"],
+    branchOfBank: json["branch_of_bank"],
+    username: json["username"],
+    password: json["password"],
+    provinceId: json["province_id"],
+    districtId: json["district_id"],
+    createdAt: DateTime.parse(json["created_at"]),
+    updatedAt: DateTime.parse(json["updated_at"]),
+    currentAddress: json["current_address"],
+    backgroundImage: json["background_image"],
+  );
 
-  Employee.fromJson(Map<String, dynamic> json) {
-    maNhanVien = json['ma_nhan_vien'];
-    tenNhanVien = json['ten_nhan_vien'];
-    soDienThoaiNhanVien = json['so_dien_thoai_nhan_vien'];
-    emailNhanVien = json['email_nhan_vien'];
-    ngaySinhNhanVien = json['ngay_sinh_nhan_vien'];
-    gioiTinhNhanVien = json['gioi_tinh_nhan_vien'];
-    hinhAnhNhanVien = json['hinh_anh_nhan_vien'];
-    thuTuHienThiNv = json['thu_tu_hien_thi_nv'];
-    soCmnd = json['so_cmnd'];
-    ngayCapCmnd = json['ngay_cap_cmnd'];
-    noiCapCmnd = json['noi_cap_cmnd'];
-    soHoChieu = json['so_ho_chieu'];
-    ngayCapHoChieu = json['ngay_cap_ho_chieu'];
-    ngayHetHanHoChieu = json['ngay_het_han_ho_chieu'];
-    noiCapHoChieu = json['noi_cap_ho_chieu'];
-    maCongTy = json['ma_cong_ty'];
-    ghiChuNhanVien = json['ghi_chu_nhan_vien'];
-    maVung = json['ma_vung'];
-    maChiNhanh = json['ma_chi_nhanh'];
-    maPhongBan = json['ma_phong_ban'];
-    maNhomTruyCap = json['ma_nhom_truy_cap'];
-    maChucDanh = json['ma_chuc_danh'];
-    hoatDong = json['hoat_dong'];
-    quyenTruongPhong = json['quyen_truong_phong'];
-    chuTaiKhoanNganHang = json['chu_tai_khoan_ngan_hang'];
-    soTaiKhoanNganHang = json['so_tai_khoan_ngan_hang'];
-    tenNganHang = json['ten_ngan_hang'];
-    chiNhanhNganHang = json['chi_nhanh_ngan_hang'];
-    tenDangNhap = json['ten_dang_nhap'];
-    matKhau = json['mat_khau'];
-    provinceId = json['province_id'];
-    districtId = json['district_id'];
-    createdAt = json['created_at'];
-    updatedAt = json['updated_at'];
-    diaChiHienTai = json['dia_chi_hien_tai'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['ma_nhan_vien'] = this.maNhanVien;
-    data['ten_nhan_vien'] = this.tenNhanVien;
-    data['so_dien_thoai_nhan_vien'] = this.soDienThoaiNhanVien;
-    data['email_nhan_vien'] = this.emailNhanVien;
-    data['ngay_sinh_nhan_vien'] = this.ngaySinhNhanVien;
-    data['gioi_tinh_nhan_vien'] = this.gioiTinhNhanVien;
-    data['hinh_anh_nhan_vien'] = this.hinhAnhNhanVien;
-    data['thu_tu_hien_thi_nv'] = this.thuTuHienThiNv;
-    data['so_cmnd'] = this.soCmnd;
-    data['ngay_cap_cmnd'] = this.ngayCapCmnd;
-    data['noi_cap_cmnd'] = this.noiCapCmnd;
-    data['so_ho_chieu'] = this.soHoChieu;
-    data['ngay_cap_ho_chieu'] = this.ngayCapHoChieu;
-    data['ngay_het_han_ho_chieu'] = this.ngayHetHanHoChieu;
-    data['noi_cap_ho_chieu'] = this.noiCapHoChieu;
-    data['ma_cong_ty'] = this.maCongTy;
-    data['ghi_chu_nhan_vien'] = this.ghiChuNhanVien;
-    data['ma_vung'] = this.maVung;
-    data['ma_chi_nhanh'] = this.maChiNhanh;
-    data['ma_phong_ban'] = this.maPhongBan;
-    data['ma_nhom_truy_cap'] = this.maNhomTruyCap;
-    data['ma_chuc_danh'] = this.maChucDanh;
-    data['hoat_dong'] = this.hoatDong;
-    data['quyen_truong_phong'] = this.quyenTruongPhong;
-    data['chu_tai_khoan_ngan_hang'] = this.chuTaiKhoanNganHang;
-    data['so_tai_khoan_ngan_hang'] = this.soTaiKhoanNganHang;
-    data['ten_ngan_hang'] = this.tenNganHang;
-    data['chi_nhanh_ngan_hang'] = this.chiNhanhNganHang;
-    data['ten_dang_nhap'] = this.tenDangNhap;
-    data['mat_khau'] = this.matKhau;
-    data['province_id'] = this.provinceId;
-    data['district_id'] = this.districtId;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
-    data['dia_chi_hien_tai'] = this.diaChiHienTai;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "name": name,
+    "phone": phone,
+    "email": email,
+    "date_of_birth": "${dateOfBirth.year.toString().padLeft(4, '0')}-${dateOfBirth.month.toString().padLeft(2, '0')}-${dateOfBirth.day.toString().padLeft(2, '0')}",
+    "gender": gender,
+    "image": image,
+    "display_order": displayOrder,
+    "identity_card": identityCard,
+    "date_release_id": "${dateReleaseId.year.toString().padLeft(4, '0')}-${dateReleaseId.month.toString().padLeft(2, '0')}-${dateReleaseId.day.toString().padLeft(2, '0')}",
+    "located_release_id": locatedReleaseId,
+    "passport": passport,
+    "date_release_passport": "${dateReleasePassport.year.toString().padLeft(4, '0')}-${dateReleasePassport.month.toString().padLeft(2, '0')}-${dateReleasePassport.day.toString().padLeft(2, '0')}",
+    "date_expired_passport": "${dateExpiredPassport.year.toString().padLeft(4, '0')}-${dateExpiredPassport.month.toString().padLeft(2, '0')}-${dateExpiredPassport.day.toString().padLeft(2, '0')}",
+    "located_release_passport": locatedReleasePassport,
+    "company_id": companyId,
+    "note": note,
+    "area_id": areaId,
+    "branch_id": branchId,
+    "department_id": departmentId,
+    "accessgroup_id": accessgroupId,
+    "position_id": positionId,
+    "active": active,
+    "acting_chief": actingChief,
+    "bank_name": bankName,
+    "bank_number": bankNumber,
+    "name_of_bank": nameOfBank,
+    "branch_of_bank": branchOfBank,
+    "username": username,
+    "password": password,
+    "province_id": provinceId,
+    "district_id": districtId,
+    "created_at": createdAt.toIso8601String(),
+    "updated_at": updatedAt.toIso8601String(),
+    "current_address": currentAddress,
+    "background_image": backgroundImage,
+  };
 }

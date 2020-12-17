@@ -3,16 +3,19 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:itime/apps/a8_attendance/a8_attendance_screen.dart';
+import 'package:itime/apps/a9_take_leave/a9_select_takeleave_screen.dart';
 import 'package:itime/commons/constants.dart';
 import 'package:itime/models/Employee.dart';
+import 'package:itime/services/data_services.dart';
 import 'package:itime/utils/network_util.dart';
+import 'package:itime/widgets/ShimmerCustom.dart';
 import 'package:itime/widgets/drawer_custom.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:http/http.dart' as http;
 
-NetworkUtil _netUtil = new NetworkUtil();
-
+DataServices _dataServices = new DataServices();
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() {
@@ -21,20 +24,42 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  SharedPreferences references;
-  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  // Get list from future
+  Future<List<Employee>> _futureGetEmployeesByUserName;
+
+  // Get list model
+  List<Employee> listEmployees = [];
   List _employee = new List<Employee>();
+
+  // Define base data type
+  String tenDangNhap = '';
+  String userName;
+  String idCompany;
+
+  // Define object from library
+  SharedPreferences preferences;
+
+  // Define datetime
+
+  // sub function
+  Future<String> getUserName() async {
+    preferences = await SharedPreferences.getInstance();
+    userName = preferences.getString('tenDangNhap');
+    return userName;
+  }
 
   @override
   void initState() {
     super.initState();
     _layDuLieuNhanVien();
+//    _futureGetEmployeesByUserName = _dataServices.getEmployeeDataByUserName(userName: userName).then((value){
+//
+//    }).catchError((error) => print("${error}")).whenComplete(() => print("done"));
   }
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-
     Widget _buildActiveBox({String image, String title}) {
       return new Container(
         decoration: new BoxDecoration(
@@ -72,25 +97,35 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return new SafeArea(
       child: new Scaffold(
-        key: _scaffoldKey,
         drawer: new FutureBuilder(
-          future: _layDuLieuNhanVien(),
+          future: _dataServices.getEmployeeDataByUserName(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return new DrawerCustom(
                 employee: new Employee(
-                    tenNhanVien: _employee.length > 0
-                        ? _employee[0]['ten_nhan_vien'].toString()
+                    name: _employee[0]['name'].length > 0
+                        ? _employee[0]['name']
                         : '',
-                    emailNhanVien: _employee.length > 0
-                        ? _employee[0]['email_nhan_vien'].toString()
+                    email: _employee[0]['email'].length > 0
+                        ? _employee[0]['email']
                         : '',
-                    hinhAnhNhanVien: _employee[0]['hinh_anh_nhan_vien'] == ''
+                    image: _employee[0]['image'] == ''
                         ? ""
-                        : "assets/images/${_employee[0]['hinh_anh_nhan_vien']}"),
+                        : "assets/images/${_employee[0]['image']}"),
               );
             } else {
-              return new Drawer();
+              return new Shimmer.fromColors(
+                child: new DrawerCustom(
+                  employee: new Employee(
+                    name: '',
+                    email: '',
+                    image: 'assets/icons/logo-itime96x96.png',
+                  ),
+                ),
+                baseColor: Colors.grey[100],
+                highlightColor: Colors.grey[400],
+                direction: ShimmerDirection.ltr,
+              );
             }
           },
         ),
@@ -435,12 +470,18 @@ class _HomeScreenState extends State<HomeScreen> {
                             padding: const EdgeInsets.all(5.0),
                             child: new GestureDetector(
                               onTap: () {
-                                showAlertWarning(
-                                  context: context,
-                                  content:
-                                      "Trước khi điểm danh bạn hãy kiểm tra định vị để chúng tôi biết vị trí.",
-                                  root: "/check-in",
-                                  height: 130.0,
+//                                showAlertWarning(
+//                                  context: context,
+//                                  content:
+//                                      "Trước khi điểm danh bạn hãy kiểm tra định vị để chúng tôi biết vị trí.",
+//                                  root: "/check-in",
+//                                  height: 130.0,
+//                                );
+                                Navigator.of(context).push(
+                                  new MaterialPageRoute(
+                                    builder: (context) =>
+                                        new AttendanceScreen(),
+                                  ),
                                 );
                               },
                               child: _buildActiveBox(
@@ -455,13 +496,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: new Padding(
                             padding: const EdgeInsets.all(5.0),
                             child: new GestureDetector(
-                              onTap: () {
-//                            Navigator.of(context).push(
-//                              new MaterialPageRoute(
-//                                builder: (context) => new TakeLeaveList(),
-//                              ),
-//                            );
-                              },
+                              onTap: () {},
                               child: _buildActiveBox(
                                 image: 'assets/icons/bao-cao.png',
                                 title: 'Báo cáo',
@@ -474,7 +509,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: new Padding(
                             padding: const EdgeInsets.all(5.0),
                             child: new GestureDetector(
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  new MaterialPageRoute(
+                                    builder: (context) => new SelectTakeLeave(),
+                                  ),
+                                );
+                              },
                               child: _buildActiveBox(
                                 image: 'assets/icons/xin-nghi.png',
                                 title: 'Xin nghỉ',
@@ -580,52 +621,15 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  showAlertWarning(
-      {BuildContext context, String content, String root, double height}) {
-    showDialog(
-      context: context,
-      child: new CupertinoAlertDialog(
-        // title: new Text("Thông báo"),
-        content: Container(
-          // height: 150,
-          height: height,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Image.asset("assets/icons/warning.png", width: 50, height: 50),
-              SizedBox(height: 10.0),
-              Text(
-                content,
-                style: TextStyle(fontSize: kTextSize),
-              ),
-            ],
-          ),
-        ),
-        actions: <Widget>[
-          FlatButton(
-            onPressed: () {
-              Navigator.of(context).pushNamed(root);
-            },
-            child: new Text("OK, Tôi đã hiểu"),
-          ),
-          FlatButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: new Text("Rời khỏi"),
-          ),
-        ],
-      ),
-    );
-  }
-
   Future<String> _layDuLieuNhanVien() async {
-    references = await SharedPreferences.getInstance();
+    preferences = await SharedPreferences.getInstance();
     Map param = {
-      'what': 110,
-      'ten_dang_nhap': references.getString('tenDangNhap'),
+      'what': 1010,
+      'username': preferences.getString('tenDangNhap'),
+      'company_id': preferences.getString('maCongTy'),
     };
     final url = BASE_URL_GET + '?input=' + jsonEncode(param);
+    print(url);
     var res = await http
         .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
     if (mounted) {

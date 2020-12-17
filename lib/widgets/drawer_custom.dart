@@ -1,12 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:itime/apps/a1_login/a1_login_screen.dart';
 import 'package:itime/models/Employee.dart';
-import 'package:itime/utils/network_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:http/http.dart' as http;
 
 /**
  * @author datnq
@@ -17,8 +13,6 @@ import 'package:http/http.dart' as http;
  * ------------------------------------
  * 23/11/2020	DatNQ		  drawer widget
  */
-NetworkUtil _netUtil = new NetworkUtil();
-
 class DrawerCustom extends StatefulWidget {
   final Employee employee;
 
@@ -28,6 +22,8 @@ class DrawerCustom extends StatefulWidget {
 }
 
 class _DrawerCustomState extends State<DrawerCustom> {
+  SharedPreferences preferences;
+
   @override
   void initState() {
     super.initState();
@@ -41,9 +37,9 @@ class _DrawerCustomState extends State<DrawerCustom> {
           shrinkWrap: true,
           children: <Widget>[
             new UserAccountsDrawerHeader(
-              accountName: new Text('${widget.employee.tenNhanVien}',
+              accountName: new Text('${widget.employee.name}',
                   style: new TextStyle(color: new HexColor("FFFFFF"))),
-              accountEmail: new Text('${widget.employee.emailNhanVien}',
+              accountEmail: new Text('${widget.employee.email}',
                   style: new TextStyle(color: new HexColor("FFFFFF"))),
               decoration: new BoxDecoration(
                 image: new DecorationImage(
@@ -53,7 +49,7 @@ class _DrawerCustomState extends State<DrawerCustom> {
               ),
               currentAccountPicture: new CircleAvatar(
                 backgroundImage:
-                    new AssetImage(widget.employee.hinhAnhNhanVien),
+                    new AssetImage(widget.employee.image),
               ),
             ),
             new ListTile(
@@ -92,8 +88,16 @@ class _DrawerCustomState extends State<DrawerCustom> {
             new ListTile(
               leading: new Icon(Icons.power_settings_new),
               title: new Text("Đăng xuất"),
-              onTap: () {
-                Navigator.of(context).pushNamed("/log-in");
+              onTap: () async {
+                preferences = await SharedPreferences.getInstance();
+                preferences.remove("maCongTy");
+                preferences.remove("tenDangNhap");
+                Navigator.push(
+                  context,
+                  new MaterialPageRoute(
+                    builder: (context) => new LoginScreen(),
+                  ),
+                );
               },
             ),
           ],

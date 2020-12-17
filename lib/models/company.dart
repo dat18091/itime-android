@@ -7,91 +7,95 @@ String companyToJson(List<Company> data) => json.encode(List<dynamic>.from(data.
 class Company {
   Company({
     this.id,
-    this.tenCongTy,
-    this.tenTruyCap,
-    this.matKhau,
+    this.name,
+    this.username,
+    this.password,
     this.provinceId,
     this.districtId,
-    this.loaiHinhDoanhNghiep,
-    this.hinhAnhCongTy,
-    this.diaChiCongTy,
-    this.soDienThoaiCongTy,
-    this.ghiChuCongTy,
-    this.websiteCongTy,
-    this.emailCongTy,
-    this.ngayThanhLap,
-    this.tenNganHangCongTy,
-    this.soTaiKhoanCongTy,
-    this.maSoThue,
+    this.typeOfBusiness,
+    this.image,
+    this.address,
+    this.phone,
+    this.note,
+    this.website,
+    this.email,
+    this.establishDate,
+    this.bankName,
+    this.bankNumber,
+    this.taxCode,
     this.rolesId,
     this.createdAt,
     this.updatedAt,
+    this.backgroundImage,
   });
 
   String id;
-  String tenCongTy;
-  String tenTruyCap;
-  String matKhau;
+  String name;
+  String username;
+  String password;
   String provinceId;
   String districtId;
-  String loaiHinhDoanhNghiep;
-  String hinhAnhCongTy;
-  String diaChiCongTy;
-  String soDienThoaiCongTy;
-  String ghiChuCongTy;
-  String websiteCongTy;
-  String emailCongTy;
-  DateTime ngayThanhLap;
-  String tenNganHangCongTy;
-  String soTaiKhoanCongTy;
-  String maSoThue;
+  String typeOfBusiness;
+  dynamic image;
+  dynamic address;
+  String phone;
+  String note;
+  String website;
+  String email;
+  DateTime establishDate;
+  dynamic bankName;
+  dynamic bankNumber;
+  dynamic taxCode;
   String rolesId;
   DateTime createdAt;
-  DateTime updatedAt;
+  dynamic updatedAt;
+  dynamic backgroundImage;
 
   factory Company.fromJson(Map<String, dynamic> json) => Company(
     id: json["id"],
-    tenCongTy: json["ten_cong_ty"],
-    tenTruyCap: json["ten_truy_cap"],
-    matKhau: json["mat_khau"],
+    name: json["name"],
+    username: json["username"],
+    password: json["password"],
     provinceId: json["province_id"],
     districtId: json["district_id"],
-    loaiHinhDoanhNghiep: json["loai_hinh_doanh_nghiep"],
-    hinhAnhCongTy: json["hinh_anh_cong_ty"],
-    diaChiCongTy: json["dia_chi_cong_ty"],
-    soDienThoaiCongTy: json["so_dien_thoai_cong_ty"],
-    ghiChuCongTy: json["ghi_chu_cong_ty"],
-    websiteCongTy: json["website_cong_ty"],
-    emailCongTy: json["email_cong_ty"],
-    ngayThanhLap: DateTime.parse(json["ngay_thanh_lap"]),
-    tenNganHangCongTy: json["ten_ngan_hang_cong_ty"],
-    soTaiKhoanCongTy: json["so_tai_khoan_cong_ty"],
-    maSoThue: json["ma_so_thue"],
+    typeOfBusiness: json["type_of_business"],
+    image: json["image"],
+    address: json["address"],
+    phone: json["phone"],
+    note: json["note"],
+    website: json["website"],
+    email: json["email"],
+    establishDate: DateTime.parse(json["establish_date"]),
+    bankName: json["bank_name"],
+    bankNumber: json["bank_number"],
+    taxCode: json["tax_code"],
     rolesId: json["roles_id"],
     createdAt: DateTime.parse(json["created_at"]),
     updatedAt: json["updated_at"],
+    backgroundImage: json["background_image"],
   );
 
   Map<String, dynamic> toJson() => {
     "id": id,
-    "ten_cong_ty": tenCongTy,
-    "ten_truy_cap": tenTruyCap,
-    "mat_khau": matKhau,
+    "name": name,
+    "username": username,
+    "password": password,
     "province_id": provinceId,
     "district_id": districtId,
-    "loai_hinh_doanh_nghiep": loaiHinhDoanhNghiep,
-    "hinh_anh_cong_ty": hinhAnhCongTy,
-    "dia_chi_cong_ty": diaChiCongTy,
-    "so_dien_thoai_cong_ty": soDienThoaiCongTy,
-    "ghi_chu_cong_ty": ghiChuCongTy,
-    "website_cong_ty": websiteCongTy,
-    "email_cong_ty": emailCongTy,
-    "ngay_thanh_lap": "${ngayThanhLap.year.toString().padLeft(4, '0')}-${ngayThanhLap.month.toString().padLeft(2, '0')}-${ngayThanhLap.day.toString().padLeft(2, '0')}",
-    "ten_ngan_hang_cong_ty": tenNganHangCongTy,
-    "so_tai_khoan_cong_ty": soTaiKhoanCongTy,
-    "ma_so_thue": maSoThue,
+    "type_of_business": typeOfBusiness,
+    "image": image,
+    "address": address,
+    "phone": phone,
+    "note": note,
+    "website": website,
+    "email": email,
+    "establish_date": "${establishDate.year.toString().padLeft(4, '0')}-${establishDate.month.toString().padLeft(2, '0')}-${establishDate.day.toString().padLeft(2, '0')}",
+    "bank_name": bankName,
+    "bank_number": bankNumber,
+    "tax_code": taxCode,
     "roles_id": rolesId,
     "created_at": createdAt.toIso8601String(),
-    "updated_at": updatedAt.toIso8601String(),
+    "updated_at": updatedAt,
+    "background_image": backgroundImage,
   };
 }

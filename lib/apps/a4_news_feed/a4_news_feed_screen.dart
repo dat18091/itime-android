@@ -1,8 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:itime/commons/constants.dart';
+import 'package:itime/models/Company.dart';
 import 'package:itime/models/Employee.dart';
 import 'package:itime/utils/network_util.dart';
 import 'package:itime/widgets/drawer_custom.dart';
@@ -27,9 +31,48 @@ class NewFeeds extends StatefulWidget {
 }
 
 class _NewFeedsState extends State<NewFeeds> {
-  SharedPreferences references;
-  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  // Get list from future
+  Future<List<Company>> _futureGetAllCompanies;
+
+  // Get list model
+  List<Company> listCompanies = [];
   List _employee = new List<Employee>();
+
+  // Define base data type
+  String _mySelection;
+
+  // Define object from library
+  SharedPreferences preferences;
+  GlobalKey<FormState> _formKey = new GlobalKey();
+  TextEditingController contentController = new TextEditingController();
+
+  File _image;
+  final picker = ImagePicker();
+
+  // Define datetime
+  var now = new DateTime.now();
+  var formatter = new DateFormat('yyyy-MM-dd HH:mm:ss');
+
+  // Sub function
+  Future _choiceImage() async {
+    var pickedImage = await picker.getImage(source: ImageSource.gallery);
+    setState(() {
+      _image = File(pickedImage.path);
+    });
+  }
+
+  Future getImage() async {
+    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+      } else {
+        print('No image selected.');
+      }
+    });
+  }
+
 
   @override
   void initState() {
@@ -43,22 +86,22 @@ class _NewFeedsState extends State<NewFeeds> {
 
     return new SafeArea(
       child: new Scaffold(
-        key: _scaffoldKey,
+//        key: _formKey,
         drawer: new FutureBuilder(
           future: _layDuLieuNhanVien(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return new DrawerCustom(
                 employee: new Employee(
-                    tenNhanVien: _employee.length > 0
-                        ? _employee[0]['ten_nhan_vien'].toString()
+                    name: _employee.length > 0
+                        ? _employee[0]['name'].toString()
                         : '',
-                    emailNhanVien: _employee.length > 0
-                        ? _employee[0]['email_nhan_vien'].toString()
+                    email: _employee.length > 0
+                        ? _employee[0]['email'].toString()
                         : '',
-                    hinhAnhNhanVien: _employee[0]['hinh_anh_nhan_vien'] == ''
+                    image: _employee[0]['image'] == ''
                         ? ""
-                        : "assets/images/${_employee[0]['hinh_anh_nhan_vien']}"),
+                        : "assets/images/${_employee[0]['image']}"),
               );
             } else {
               return Drawer();
@@ -102,8 +145,8 @@ class _NewFeedsState extends State<NewFeeds> {
                       children: <Widget>[
                         new FutureBuilder(
                           future: _layDuLieuNhanVien(),
-                          builder: (context, snapshot){
-                            if(!snapshot.hasData) {
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData) {
                               return new Center(
                                 child: new CircularProgressIndicator(),
                               );
@@ -127,23 +170,129 @@ class _NewFeedsState extends State<NewFeeds> {
                           },
                         ),
                         new SizedBox(width: 10),
-                        new Container(
-                          width: size.width / 1.4,
-                          height: size.height / 14,
-                          decoration: new BoxDecoration(
-                            borderRadius: new BorderRadius.circular(50.0),
-                            color: Colors.grey[200],
-                          ),
-                          child: new TextFormField(
-                            decoration: new InputDecoration(
-                              contentPadding: EdgeInsets.only(left: 20.0),
-                              border: InputBorder.none,
-                              hintStyle: new TextStyle(
-                                color: new HexColor("606266"),
-                                fontSize: kTextSize - 3,
-                              ),
-                              hintText: "Bạn đang nghĩ gì?",
+                        new GestureDetector(
+                          onTap: () {
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    content: Stack(
+                                      overflow: Overflow.visible,
+                                      children: <Widget>[
+                                        Positioned(
+                                          right: -40.0,
+                                          top: -40.0,
+                                          child: InkResponse(
+                                            onTap: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: CircleAvatar(
+                                              child: Icon(
+                                                Icons.close,
+                                                color: HexColor("FFFFFF"),
+                                              ),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          ),
+                                        ),
+                                        Form(
+                                          key: _formKey,
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: <Widget>[
+                                              new Container(
+                                                width: size.width / 1.4,
+                                                height: size.height / 14,
+                                                decoration: new BoxDecoration(
+                                                  borderRadius:
+                                                      new BorderRadius.circular(
+                                                          50.0),
+                                                  color: Colors.grey[200],
+                                                ),
+                                                child: new TextFormField(
+                                                  decoration:
+                                                      new InputDecoration(
+                                                    contentPadding:
+                                                        EdgeInsets.only(
+                                                            left: 20.0),
+                                                    border: InputBorder.none,
+                                                    hintStyle: new TextStyle(
+                                                      color: new HexColor(
+                                                          "606266"),
+                                                      fontSize: kTextSize - 3,
+                                                    ),
+                                                    hintText:
+                                                        "Bạn đang nghĩ gì?",
+                                                  ),
+                                                  controller: contentController,
+                                                ),
+                                              ),
+//                                              Padding(
+//                                                padding: EdgeInsets.all(8.0),
+//                                                child: TextFormField(),
+//                                              ),
+                                            IconButton(
+                                              icon: Icon(Icons.camera),
+                                              onPressed: () {
+                                                getImage();
+                                              },
+                                            ),
+                                              Container(
+                                                width: 100,
+                                                height: 100,
+                                                child: _image == null
+                                                    ? Text("No image selected")
+                                                    : Image.file(_image),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: RaisedButton(
+                                                  child: Text("Submitß"),
+                                                  onPressed: () {
+//                                                    if (_formKey.currentState
+//                                                        .validate()) {
+//                                                      _formKey.currentState
+//                                                          .save();
+//                                                    }
+                                                  },
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                });
+                          },
+                          child: new Container(
+                            width: size.width / 1.4,
+                            height: size.height / 14,
+                            decoration: new BoxDecoration(
+                              borderRadius: new BorderRadius.circular(50.0),
+                              color: Colors.grey[200],
                             ),
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(top: 12.0, left: 20.0),
+                              child: Text(
+                                "Bạn đang nghĩ gì?",
+                                style: TextStyle(fontSize: 16.0),
+                              ),
+                            ),
+//                            child: new TextFormField(
+//                              decoration: new InputDecoration(
+//                                contentPadding: EdgeInsets.only(left: 20.0),
+//                                border: InputBorder.none,
+//                                hintStyle: new TextStyle(
+//                                  color: new HexColor("606266"),
+//                                  fontSize: kTextSize - 3,
+//                                ),
+//                                hintText: "Bạn đang nghĩ gì?",
+//                              ),
+////                            controller: contentController,
+//                            ),
                           ),
                         ),
                       ],
@@ -188,6 +337,10 @@ class _NewFeedsState extends State<NewFeeds> {
                               ),
                             ],
                           ),
+//                          ),
+//                          onTap: (){
+//                            _choiceImage();
+//                          },
                         ),
                         new Container(
                           child: new Row(
@@ -407,7 +560,7 @@ class _NewFeedsState extends State<NewFeeds> {
                 children: <Widget>[
                   makeLike(),
                   new Transform.translate(
-                    offset: new  Offset(-6, 0),
+                    offset: new Offset(-6, 0),
                     child: makeLove(),
                   ),
                   new Text(
@@ -555,10 +708,10 @@ class _NewFeedsState extends State<NewFeeds> {
   }
 
   Future<String> _layDuLieuNhanVien() async {
-    references = await SharedPreferences.getInstance();
+    preferences = await SharedPreferences.getInstance();
     Map param = {
       'what': 110,
-      'ten_dang_nhap': references.getString('tenDangNhap'),
+      'ten_dang_nhap': preferences.getString('tenDangNhap'),
     };
     final url = BASE_URL_GET + '?input=' + jsonEncode(param);
     var res = await http

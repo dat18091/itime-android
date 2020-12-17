@@ -37,15 +37,15 @@ class _MessageScreenState extends State<MessageScreen> {
             if (snapshot.hasData) {
               return new DrawerCustom(
                 employee: new Employee(
-                    tenNhanVien: _employee.length > 0
-                        ? _employee[0]['ten_nhan_vien'].toString()
+                    name: _employee.length > 0
+                        ? _employee[0]['name'].toString()
                         : '',
-                    emailNhanVien: _employee.length > 0
-                        ? _employee[0]['email_nhan_vien'].toString()
+                    email: _employee.length > 0
+                        ? _employee[0]['email'].toString()
                         : '',
-                    hinhAnhNhanVien: _employee[0]['hinh_anh_nhan_vien'] == ''
+                    image: _employee[0]['image'] == ''
                         ? ""
-                        : "assets/images/${_employee[0]['hinh_anh_nhan_vien']}"),
+                        : "assets/images/${_employee[0]['image']}"),
               );
             } else {
               return new Drawer();

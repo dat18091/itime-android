@@ -1,19 +1,17 @@
-import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:itime/apps/a2_register/a2_register_screen.dart';
-import 'package:itime/apps/a3_home/a3_home_screen.dart';
-import 'package:itime/commons/constants.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
 
-import 'package:itime/commons/special_convert.dart';
+import 'package:itime/commons/constants.dart';
 import 'package:itime/models/Company.dart';
 import 'package:itime/services/data_services.dart';
-import 'package:itime/utils/network_util.dart';
+import 'package:itime/widgets/alert_dialog.dart';
 import 'package:itime/widgets/tabbar_custom.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:itime/apps/a2_register/a2_register_screen.dart';
 
 /**
  * @author datnq
@@ -24,7 +22,7 @@ import 'package:shared_preferences/shared_preferences.dart';
  * ------------------------------------
  * 23/11/2020	DatNQ		  login page
  */
-NetworkUtil _netUtil = new NetworkUtil();
+DataServices _dataServices = new DataServices();
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -32,31 +30,50 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  GlobalKey<FormState> _formKey = new GlobalKey();
+  // Get list from future
+  Future<List<Company>> _futureGetAllCompanies;
 
+  // Get list model
+  List<Company> listCompanies = [];
+
+  // Define base data type
   String _mySelection;
-  var _companies = new List<Company>();
 
+  // Define object from library
+  SharedPreferences preferences;
+  GlobalKey<FormState> _formKey = new GlobalKey();
   TextEditingController tenDangNhap = new TextEditingController();
   TextEditingController matKhau = new TextEditingController();
+
+  // Define datetime
+  var now = new DateTime.now();
+  var formatter = new DateFormat('yyyy-MM-dd HH:mm:ss');
 
   @override
   void initState() {
     super.initState();
-    DataServices.getAllCompanies().then((company) {
-      _companies = company;
-    });
+    // Get all companies
+    _futureGetAllCompanies = _dataServices
+        .getAllCompanies()
+        .then((value) {
+          listCompanies = value;
+        })
+        .catchError((error) => print("${error}"))
+        .whenComplete(() => print("done"));
   }
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
     Size size = MediaQuery.of(context).size;
     /**
      * Select company
      * */
     Widget _selectCompany() {
       return new FutureBuilder(
-        future: DataServices.getAllCompanies(),
+        future: _futureGetAllCompanies,
         builder: (context, snapshot) {
           return new Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,10 +97,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: new DropdownButton<String>(
                     isExpanded: true,
                     isDense: false,
-                    items: _companies.map((item) {
+                    items: listCompanies.map((item) {
                       return new DropdownMenuItem(
                         child: new Text(
-                          "${item.tenCongTy}",
+                          "${item.name}",
                           overflow: TextOverflow.ellipsis,
                           softWrap: false,
                           maxLines: 3,
@@ -131,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: new TextFormField(
               keyboardType: TextInputType.text,
               style: new TextStyle(
-                color: wTextColor,
+                color: bTextColor,
                 fontSize: kTextSize - 2,
               ),
               decoration: new InputDecoration(
@@ -139,11 +156,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 contentPadding: new EdgeInsets.only(top: 14.0),
                 prefixIcon: new Icon(
                   Icons.person,
-                  color: Colors.white,
+                  color: bTextColor,
                 ),
                 hintText: 'Nhập tên đăng nhập',
                 hintStyle: new TextStyle(
-                  color: wTextColor,
+                  color: bTextColor,
                   fontSize: kTextSize - 2,
                 ),
               ),
@@ -178,7 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: new TextFormField(
               obscureText: true,
               style: new TextStyle(
-                color: wTextColor,
+                color: bTextColor,
                 fontSize: kTextSize - 2,
               ),
               decoration: new InputDecoration(
@@ -186,11 +203,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 contentPadding: new EdgeInsets.only(top: 14.0),
                 prefixIcon: new Icon(
                   Icons.lock,
-                  color: Colors.white,
+                  color: bTextColor,
                 ),
                 hintText: 'Nhập mật khẩu',
                 hintStyle: new TextStyle(
-                  color: wTextColor,
+                  color: bTextColor,
                   fontSize: kTextSize - 2,
                 ),
               ),
@@ -211,7 +228,96 @@ class _LoginScreenState extends State<LoginScreen> {
         child: new RaisedButton(
           elevation: 5.0,
           onPressed: () {
-            login(context);
+            if(_mySelection == '' || tenDangNhap.text == '' || matKhau.text == '') {
+              print("check rỗng");
+              showAlert(
+                title: "Thông báo",
+                content: "Tên đăng nhập hoặc mật khẩu không được để trống.",
+                onPress: () {
+                  Navigator.push(
+                    context,
+                    new MaterialPageRoute(
+                      builder: (context) => new LoginScreen(),
+                    ),
+                  );
+                },
+                subOnPress: null,
+                context: context,
+              );
+            } else if(tenDangNhap.text.length > 20 || matKhau.text.length > 20){
+              print("check quá ký tự");
+              showAlert(
+                title: "Thông báo",
+                content: "Bạn đã nhập quá ký tự cho phép.",
+                onPress: () {
+                  Navigator.push(
+                    context,
+                    new MaterialPageRoute(
+                      builder: (context) => new LoginScreen(),
+                    ),
+                  );
+                },
+                subOnPress: null,
+                context: context,
+              );
+            } else if(tenDangNhap.text.length > 20 || matKhau.text.length > 20) {
+              print("check ký tự nhỏ");
+              showAlert(
+                title: "Thông báo",
+                content: "Bạn đã quá ít ký tự.",
+                onPress: () {
+                  Navigator.push(
+                    context,
+                    new MaterialPageRoute(
+                      builder: (context) => new LoginScreen(),
+                    ),
+                  );
+                },
+                subOnPress: null,
+                context: context,
+              );
+            } else {
+              _dataServices
+                  .login(
+                  idCompany: int.parse(_mySelection),
+                  username: tenDangNhap.text,
+                  password: matKhau.text)
+                  .then((dynamic res) async{
+                if (res.length > 0) {
+                  preferences = await SharedPreferences.getInstance();
+                  preferences.setString("tenDangNhap", tenDangNhap.text);
+                  preferences.setString("maCongTy", _mySelection);
+                  tenDangNhap.clear();
+                  matKhau.clear();
+                  print("đăng nhập thành công");
+                  showAlert(
+                    title: "Thông báo",
+                    content: "Đăng nhập thành công.",
+                    onPress: () {
+                      Navigator.push(
+                        context,
+                        new MaterialPageRoute(
+                          builder: (context) => new TabbarCustom(),
+                        ),
+                      );
+                    },
+                    subOnPress: null,
+                    context: context,
+                  );
+                } else {
+                  print("đăng nhập không thành công");
+                  showAlert(
+                    title: "Thông báo",
+                    content: "Tên đăng nhập hoặc mật khẩu không đúng.",
+                    onPress: () {
+                      Navigator.pop(context);
+                    },
+                    subOnPress: null,
+                    context: context,
+                  );
+                }
+              });
+            }
           },
           padding: new EdgeInsets.all(15.0),
           shape: new RoundedRectangleBorder(
@@ -328,71 +434,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  void login(BuildContext context) async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    preferences.setString("tenDangNhap", tenDangNhap.text);
-    if (_formKey.currentState.validate()) {
-      _formKey.currentState.save();
-      Map parameters = {
-        'what': 109,
-        'ten_dang_nhap': tenDangNhap.text,
-        'mat_khau': convertStringToMD5(matKhau.text),
-        'ma_cong_ty': _mySelection,
-      };
-      print(parameters);
-      _netUtil.get(jsonEncode(parameters)).then((dynamic res) {
-        if (res.length > 0) {
-          tenDangNhap.clear();
-          matKhau.clear();
-          showAlert(
-            title: "Thông báo",
-            content: "Đăng nhập thành công.",
-            onPress: () {
-              Navigator.push(
-                context,
-                new MaterialPageRoute(
-                  builder: (context) => new TabbarCustom(),
-                ),
-              );
-            },
-            subOnPress: null,
-          );
-        }
-      });
-    }
-  }
-
-  Widget showAlert(
-      {String title,
-      String content,
-      VoidCallback onPress,
-      VoidCallback subOnPress}) {
-    showDialog(
-      context: context,
-      child: new CupertinoAlertDialog(
-        title: new Text("${title}"),
-        content: new Container(
-          child: new Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              new SizedBox(height: 10.0),
-              new Text(
-                "${content}",
-                style: new TextStyle(fontSize: 16),
-              ),
-            ],
-          ),
-        ),
-        actions: <Widget>[
-          new FlatButton(
-            onPressed: onPress,
-            child: new Text("OK"),
-          ),
-        ],
       ),
     );
   }
