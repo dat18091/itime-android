@@ -34,22 +34,22 @@ class _MessageScreenState extends State<MessageScreen> {
         drawer: new FutureBuilder(
           future: _layDuLieuNhanVien(),
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return new DrawerCustom(
-                employee: new Employee(
-                    name: _employee.length > 0
-                        ? _employee[0]['name'].toString()
-                        : '',
-                    email: _employee.length > 0
-                        ? _employee[0]['email'].toString()
-                        : '',
-                    image: _employee[0]['image'] == ''
-                        ? ""
-                        : "assets/images/${_employee[0]['image']}"),
-              );
-            } else {
-              return new Drawer();
-            }
+//            if (snapshot.hasData) {
+//              return new DrawerCustom(
+//                employee: new Employee(
+//                    name: _employee.length > 0
+//                        ? _employee[0]['name'].toString()
+//                        : '',
+//                    email: _employee.length > 0
+//                        ? _employee[0]['email'].toString()
+//                        : '',
+//                    image: _employee[0]['image'] == ''
+//                        ? ""
+//                        : "assets/images/${_employee[0]['image']}"),
+//              );
+//            } else {
+//              return new Drawer();
+//            }
           },
         ),
         appBar: new AppBar(

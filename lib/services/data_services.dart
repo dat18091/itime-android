@@ -67,6 +67,21 @@ class DataServices {
     var input = jsonEncode(parameters);
     return _networkUtil.get(input);
   }
+
+  // Count attendances
+  // created by : DatNQ
+  // created at : 07/12/2020
+  Future<void> countAttendances({int idEmployee, int idCompany}) async {
+    Map parameters = {
+      'what': 411,
+      'employee_id': idEmployee,
+      'company_id': idCompany,
+    };
+    var input = jsonEncode(parameters);
+    final url = BASE_URL_GET + input;
+    print(url);
+    return _networkUtil.get(input);
+  }
   //------------------------------500---------------------------------------
   //------------------------------600---------------------------------------
   // get data from database compaies
@@ -218,62 +233,47 @@ class DataServices {
   //------------------------------1800---------------------------------------
   //------------------------------1900---------------------------------------
   //------------------------------2000---------------------------------------
-
-
-
-
-
-
-
-
-
   // Insert data into table pShopMenu
   // created by : DatNQ
   // created at : 04/22/2020
-  Future<void> insertDataIntoTakeLeave({
-    int idEmployee,
-    int idCompany,
-    int idArea,
-    int idBranch,
-    int idDepartment,
-    int idPosition,
-    int idDateTakeLeaveType,
-    String startDate,
-    String endDate,
-    String dateTakeLeave,
-    int idTakeLeaveTypes,
-    int idShift,
-    int idTakeLeaveReason,
-    String reason,
-    String content,
-    int status,
-  }) async {
-    formatter = new DateFormat('yyyy-MM-dd HH:mm:ss');
-    preferences = await SharedPreferences.getInstance();
+  Future<void> sendRequestTakeLeave(
+      {int idCompany,
+      int idEmloyee,
+      int idArea,
+      int idBranch,
+      int idDepartment,
+      int idPosition,
+      int idDateTakeLeaveType,
+      String startDate,
+      String endDate,
+      String dateTakeLeave,
+      int idTakeLeaveType,
+      int idShift,
+      int idTakeLeaveReason,
+      String content,
+      String reason}) async {
     Map parameters = {
-      'what': 801,
-      'ma_nhan_vien': idEmployee,
-      'ma_cong_ty': idCompany,
-      'ma_vung': idArea,
-      'ma_chi_nhanh': idBranch,
-      'ma_phong_ban': idDepartment,
-      'ma_chuc_danh': idPosition,
-      'idDateTakeLeaveType': idDateTakeLeaveType,
+      'what': 1707,
+      'company_id': idCompany,
+      'employee_id': idEmloyee,
+      'area_id': idArea,
+      'branch_id': idBranch,
+      'department_id': idDepartment,
+      'position_id': idPosition,
+      'date_take_leave_type_id': idDateTakeLeaveType,
       'start_date': startDate,
       'end_date': endDate,
       'date_take_leave': dateTakeLeave,
-      'idTakeLeaveType': idTakeLeaveTypes,
-      'ma_ca_lam': idShift,
-      'idTakeLeaveReason': idTakeLeaveReason,
-      'reason': reason,
+      'take_leave_type_id': idTakeLeaveType,
+      'shift_id': idShift,
+      'take_leave_reason_id': idTakeLeaveReason,
       'content': content,
-      'status': status,
+      'reason': reason,
+      'status': 0,
       'created_at': formatter.format(now),
-      'updated_at': formatter.format(now),
     };
     var input = jsonEncode(parameters);
     return _networkUtil.get(input);
   }
-
 
 }

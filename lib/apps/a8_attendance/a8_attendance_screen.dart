@@ -17,6 +17,7 @@ import 'package:http/http.dart' as http;
 
 NetworkUtil _netUtil = new NetworkUtil();
 DataServices _dataServices = DataServices();
+
 class AttendanceScreen extends StatefulWidget {
   @override
   _AttendanceScreenState createState() => _AttendanceScreenState();
@@ -175,6 +176,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                                 if (res.length > 0) {
                                   // check exists attendances
                                   print(maNhanVien);
+                                  print(maCongTy);
                                   _dataServices
                                       .checkExistsAttendances(
                                           idCompany: int.parse(maCongTy),
@@ -182,26 +184,38 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                                           status: int.parse('0'))
                                       .then((dynamic data) {
                                     print("check exists attendance");
-                                    if (data.length < 0) {
+                                    print(data.length);
+                                    if (data.length > 0) {
+                                      showAlert(
+                                        title: 'Thông báo',
+                                        content:
+                                            'Bạn đã điểm danh ngày hôm nay, vui lòng quay lại vào ngày mai.',
+                                        onPress: () =>
+                                            Navigator.of(context).pop(),
+                                        subOnPress: null,
+                                        context: context,
+                                      );
+                                    } else if(data.length <= 0) {
                                       // check time attendances : not make
                                       // attendances
                                       _dataServices
                                           .checkInSubmit(
-                                          status: 1,
-                                          idCompany: int.parse(references
-                                              .getString("maCongTy")),
-                                          idEmployee: int.parse(references
-                                              .getString("maNhanVien")),
-                                          checkInImage: "",
-                                          checkInLocal: _currentAddress,
-                                          idPosition: int.parse(
-                                              res[0].positionId.toString()),
-                                          idDepartment: int.parse(
-                                              res[0].departmentId.toString()),
-                                          idBranch: int.parse(
-                                              res[0].branchId.toString()),
-                                          idArea: int.parse(
-                                              res[0].areaId.toString()))
+                                              status: 1,
+                                              idCompany: int.parse(references
+                                                  .getString("maCongTy")),
+                                              idEmployee: int.parse(references
+                                                  .getString("maNhanVien")),
+                                              checkInImage: "",
+                                              checkInLocal: _currentAddress,
+                                              idPosition: int.parse(
+                                                  res[0].positionId.toString()),
+                                              idDepartment: int.parse(res[0]
+                                                  .departmentId
+                                                  .toString()),
+                                              idBranch: int.parse(
+                                                  res[0].branchId.toString()),
+                                              idArea: int.parse(
+                                                  res[0].areaId.toString()))
                                           .then((dynamic res) {
                                         if (res.length > 0) {
                                           showAlert(
@@ -227,16 +241,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                                         });
                                       });
                                       // end attendances
-                                    } else {
-                                      showAlert(
-                                        title: 'Thông báo',
-                                        content:
-                                            'Bạn đã điểm danh ngày hôm nay, vui lòng quay lại vào ngày mai.',
-                                        onPress: () =>
-                                            Navigator.of(context).pop(),
-                                        subOnPress: null,
-                                        context: context,
-                                      );
                                     }
                                   });
                                   // end check exists attendances

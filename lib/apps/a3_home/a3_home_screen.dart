@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -8,14 +6,12 @@ import 'package:itime/apps/a9_take_leave/a9_select_takeleave_screen.dart';
 import 'package:itime/commons/constants.dart';
 import 'package:itime/models/Employee.dart';
 import 'package:itime/services/data_services.dart';
-import 'package:itime/utils/network_util.dart';
 import 'package:itime/widgets/ShimmerCustom.dart';
 import 'package:itime/widgets/drawer_custom.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:http/http.dart' as http;
-
 DataServices _dataServices = new DataServices();
+
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() {
@@ -25,16 +21,16 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   // Get list from future
-  Future<List<Employee>> _futureGetEmployeesByUserName;
+  Future<List<Employee>> _futureGetEmployeeByUserName;
+  Future<dynamic> _futureCountAttendance;
 
   // Get list model
   List<Employee> listEmployees = [];
-  List _employee = new List<Employee>();
 
   // Define base data type
-  String tenDangNhap = '';
   String userName;
   String idCompany;
+  int countAttendance = 0;
 
   // Define object from library
   SharedPreferences preferences;
@@ -48,13 +44,54 @@ class _HomeScreenState extends State<HomeScreen> {
     return userName;
   }
 
+  Future<String> getIdCompany() async {
+    preferences = await SharedPreferences.getInstance();
+    idCompany = preferences.getString('maCongTy');
+    return idCompany;
+  }
+
   @override
   void initState() {
     super.initState();
-    _layDuLieuNhanVien();
-//    _futureGetEmployeesByUserName = _dataServices.getEmployeeDataByUserName(userName: userName).then((value){
-//
-//    }).catchError((error) => print("${error}")).whenComplete(() => print("done"));
+    // lay ten dang nhap
+    getUserName()
+        .then((username) {
+          userName = username;
+          print(userName);
+        })
+        .catchError((error) => print("${error.toString()}"))
+        .whenComplete(() {
+          // khi hoan thanh lay ma nhan vien
+          getIdCompany().then((idcompany) {
+            idCompany = idcompany;
+            print(idCompany);
+            // khi hoan thanh lay du lieu nhan vien
+            _futureGetEmployeeByUserName = _dataServices
+                .getEmployeeDataByUserName(
+                    idCompany: int.parse(idCompany), userName: userName)
+                .then((value) {
+              setState(() {
+                listEmployees = value;
+              });
+                })
+                .catchError((error) => print("${error.toString()}"))
+                .whenComplete(() {
+                  // khi hoàn thành đếm số ngày nghỉ
+                  _futureCountAttendance = _dataServices
+                      .countAttendances(
+                          idCompany: int.parse(idCompany),
+                          idEmployee: int.parse(listEmployees[0].id))
+                      .then((dynamic res) {
+                    setState(() {
+                      countAttendance =
+                          int.parse(res[0]['CountTakeLeave'].toString());
+                      print(countAttendance);
+                    });
+                  });
+                });
+          }).whenComplete(() => print("ma cong ty " + idCompany));
+        })
+        .whenComplete(() => print("ten dang nhap " + userName));
   }
 
   @override
@@ -97,41 +134,40 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return new SafeArea(
       child: new Scaffold(
-        drawer: new FutureBuilder(
-          future: _dataServices.getEmployeeDataByUserName(),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return new DrawerCustom(
-                employee: new Employee(
-                    name: _employee[0]['name'].length > 0
-                        ? _employee[0]['name']
-                        : '',
-                    email: _employee[0]['email'].length > 0
-                        ? _employee[0]['email']
-                        : '',
-                    image: _employee[0]['image'] == ''
-                        ? ""
-                        : "assets/images/${_employee[0]['image']}"),
-              );
-            } else {
-              return new Shimmer.fromColors(
-                child: new DrawerCustom(
-                  employee: new Employee(
-                    name: '',
-                    email: '',
-                    image: 'assets/icons/logo-itime96x96.png',
-                  ),
-                ),
-                baseColor: Colors.grey[100],
-                highlightColor: Colors.grey[400],
-                direction: ShimmerDirection.ltr,
-              );
-            }
-          },
-        ),
+//        drawer: new FutureBuilder(
+//          future: _futureGetEmployeeByUserName,
+//          builder: (context, snapshot) {
+//            if (snapshot.hasData) {
+//              return new DrawerCustom(
+//                name: listEmployees[0].name.length > 0
+//                    ? listEmployees[0].name
+//                    : '',
+//                email: listEmployees[0].email.length > 0
+//                    ? listEmployees[0].email
+//                    : '',
+//                image: listEmployees[0].image == ''
+//                    ? ""
+//                    : "assets/images/${listEmployees[0].image}",
+//              );
+//            } else if (snapshot.hasError) {
+//              return Text("${snapshot.error}");
+//            } else if (!snapshot.hasData) {
+//              return new Drawer();
+//            } else {
+//              return new Drawer();
+//            }
+//          },
+//        ),
         appBar: new AppBar(
+          automaticallyImplyLeading: false,
           backgroundColor: new HexColor("CC0000"),
-          title: new Text("IZITIME"),
+          title: Row(
+            children: [
+              new Image.asset('assets/icons/logo-itime96x96.png', width: 30, height: 30,),
+              new SizedBox(width: 5,),
+              new Text("IZITIME"),
+            ],
+          ),
           actions: <Widget>[
             new IconButton(
               icon: new Icon(Icons.search),
@@ -195,65 +231,71 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     new Row(
                       children: <Widget>[
-                        new Expanded(
-                          flex: 1,
-                          child: new Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: new GestureDetector(
-                              onTap: () {},
-                              child: new Container(
-                                decoration: new BoxDecoration(
-                                  gradient: new LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      stops: [
-                                        0.2,
-                                        0.4,
-                                        0.6,
-                                        0.9
+                        new FutureBuilder(
+                          future: _futureCountAttendance,
+                          builder: (context, snapshot) {
+                            return new Expanded(
+                              flex: 1,
+                              child: new Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: new GestureDetector(
+                                  onTap: () {},
+                                  child: new Container(
+                                    decoration: new BoxDecoration(
+                                      gradient: new LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          stops: [
+                                            0.2,
+                                            0.4,
+                                            0.6,
+                                            0.9
+                                          ],
+                                          colors: [
+                                            new HexColor("0995E2"),
+                                            new HexColor("26C6DA"),
+                                            new HexColor("80DEEA"),
+                                            new HexColor("B1E9F0")
+                                          ]),
+                                      borderRadius: new BorderRadius.all(
+                                        new Radius.circular(
+                                          10.0,
+                                        ), //         <--- border radius here
+                                      ),
+                                    ),
+                                    height: size.height / 7,
+                                    child: new Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        new Padding(
+                                          padding: const EdgeInsets.all(5.0),
+                                          child: new Text(
+                                            'Ngày làm',
+                                            style: new TextStyle(
+                                              color: new HexColor("FFFFFF"),
+                                              fontSize: kTextSize,
+                                            ),
+                                          ),
+                                        ),
+                                        new Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: new Text(
+                                            '${countAttendance.toString()}',
+                                            style: new TextStyle(
+                                              color: new HexColor("FFFFFF"),
+                                              fontSize: 25,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
                                       ],
-                                      colors: [
-                                        new HexColor("0995E2"),
-                                        new HexColor("26C6DA"),
-                                        new HexColor("80DEEA"),
-                                        new HexColor("B1E9F0")
-                                      ]),
-                                  borderRadius: new BorderRadius.all(
-                                    new Radius.circular(
-                                      10.0,
-                                    ), //         <--- border radius here
+                                    ),
                                   ),
                                 ),
-                                height: size.height / 7,
-                                child: new Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    new Padding(
-                                      padding: const EdgeInsets.all(5.0),
-                                      child: new Text(
-                                        'Ngày làm',
-                                        style: new TextStyle(
-                                          color: new HexColor("FFFFFF"),
-                                          fontSize: kTextSize,
-                                        ),
-                                      ),
-                                    ),
-                                    new Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: new Text(
-                                        '500',
-                                        style: new TextStyle(
-                                          color: new HexColor("FFFFFF"),
-                                          fontSize: 25,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
                               ),
-                            ),
-                          ),
+                            );
+                          },
                         ),
                         new Expanded(
                           flex: 1,
@@ -619,24 +661,5 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
-  }
-
-  Future<String> _layDuLieuNhanVien() async {
-    preferences = await SharedPreferences.getInstance();
-    Map param = {
-      'what': 1010,
-      'username': preferences.getString('tenDangNhap'),
-      'company_id': preferences.getString('maCongTy'),
-    };
-    final url = BASE_URL_GET + '?input=' + jsonEncode(param);
-    print(url);
-    var res = await http
-        .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
-    if (mounted) {
-      setState(() {
-        _employee = json.decode(res.body);
-      });
-    }
-    return "Success";
   }
 }

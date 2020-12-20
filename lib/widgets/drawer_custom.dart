@@ -14,9 +14,11 @@ import 'package:shared_preferences/shared_preferences.dart';
  * 23/11/2020	DatNQ		  drawer widget
  */
 class DrawerCustom extends StatefulWidget {
-  final Employee employee;
+  final String name;
+  final String image;
+  final String email;
 
-  const DrawerCustom({Key key, this.employee}) : super(key: key);
+  const DrawerCustom({Key key, this.name, this.image, this.email}) : super(key: key);
   @override
   _DrawerCustomState createState() => _DrawerCustomState();
 }
@@ -37,9 +39,9 @@ class _DrawerCustomState extends State<DrawerCustom> {
           shrinkWrap: true,
           children: <Widget>[
             new UserAccountsDrawerHeader(
-              accountName: new Text('${widget.employee.name}',
+              accountName: new Text('${widget.name}',
                   style: new TextStyle(color: new HexColor("FFFFFF"))),
-              accountEmail: new Text('${widget.employee.email}',
+              accountEmail: new Text('${widget.email}',
                   style: new TextStyle(color: new HexColor("FFFFFF"))),
               decoration: new BoxDecoration(
                 image: new DecorationImage(
@@ -49,7 +51,7 @@ class _DrawerCustomState extends State<DrawerCustom> {
               ),
               currentAccountPicture: new CircleAvatar(
                 backgroundImage:
-                    new AssetImage(widget.employee.image),
+                    new AssetImage(widget.image),
               ),
             ),
             new ListTile(

@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -6,13 +5,10 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:itime/commons/constants.dart';
-import 'package:itime/models/Company.dart';
 import 'package:itime/models/Employee.dart';
-import 'package:itime/utils/network_util.dart';
+import 'package:itime/services/data_services.dart';
 import 'package:itime/widgets/drawer_custom.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:http/http.dart' as http;
 
 /**
  * @author datnq
@@ -23,7 +19,7 @@ import 'package:http/http.dart' as http;
  * ------------------------------------
  * 24/11/2020	DatNQ		  news feed
  */
-NetworkUtil _netUtil = new NetworkUtil();
+DataServices _dataServices = new DataServices();
 
 class NewFeeds extends StatefulWidget {
   @override
@@ -32,14 +28,15 @@ class NewFeeds extends StatefulWidget {
 
 class _NewFeedsState extends State<NewFeeds> {
   // Get list from future
-  Future<List<Company>> _futureGetAllCompanies;
+  Future<List<Employee>> _futureGetEmployeeByUserName;
 
   // Get list model
-  List<Company> listCompanies = [];
-  List _employee = new List<Employee>();
+  List<Employee> listEmployees = [];
 
   // Define base data type
   String _mySelection;
+  String userName;
+  String idCompany;
 
   // Define object from library
   SharedPreferences preferences;
@@ -73,11 +70,48 @@ class _NewFeedsState extends State<NewFeeds> {
     });
   }
 
+  Future<String> getUserName() async {
+    preferences = await SharedPreferences.getInstance();
+    userName = preferences.getString('tenDangNhap');
+    return userName;
+  }
+
+  Future<String> getIdCompany() async {
+    preferences = await SharedPreferences.getInstance();
+    idCompany = preferences.getString('maCongTy');
+    return idCompany;
+  }
 
   @override
   void initState() {
     super.initState();
-    _layDuLieuNhanVien();
+    // lay ten dang nhap
+    getUserName()
+        .then((username) {
+      userName = username;
+      print(userName);
+    })
+        .catchError((error) => print("${error.toString()}"))
+        .whenComplete(() {
+      // khi hoan thanh lay ma nhan vien
+      getIdCompany()
+          .then((idcompany) {
+        idCompany = idcompany;
+        print(idCompany);
+      })
+          .catchError((error) => print("${error.toString()}"))
+          .whenComplete(() {});
+    });
+    // khi hoan thanh lay du lieu nhan vien
+    _futureGetEmployeeByUserName = _dataServices
+        .getEmployeeDataByUserName(
+        idCompany: int.parse(idCompany), userName: userName)
+        .then((value) {
+      listEmployees = value;
+    })
+        .catchError((error) => print("${error.toString()}"))
+        .whenComplete(() {
+    });
   }
 
   @override
@@ -88,20 +122,19 @@ class _NewFeedsState extends State<NewFeeds> {
       child: new Scaffold(
 //        key: _formKey,
         drawer: new FutureBuilder(
-          future: _layDuLieuNhanVien(),
+          future: _futureGetEmployeeByUserName,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return new DrawerCustom(
-                employee: new Employee(
-                    name: _employee.length > 0
-                        ? _employee[0]['name'].toString()
-                        : '',
-                    email: _employee.length > 0
-                        ? _employee[0]['email'].toString()
-                        : '',
-                    image: _employee[0]['image'] == ''
-                        ? ""
-                        : "assets/images/${_employee[0]['image']}"),
+                name: listEmployees[0].name.length > 0
+                    ? listEmployees[0].name
+                    : '',
+                email: listEmployees[0].email.length > 0
+                    ? listEmployees[0].email
+                    : '',
+                image: listEmployees[0].image == ''
+                    ? ""
+                    : "assets/images/${listEmployees[0].image}",
               );
             } else {
               return Drawer();
@@ -144,7 +177,9 @@ class _NewFeedsState extends State<NewFeeds> {
                     new Row(
                       children: <Widget>[
                         new FutureBuilder(
-                          future: _layDuLieuNhanVien(),
+                          future: _dataServices.getEmployeeDataByUserName(
+                              userName: userName,
+                              idCompany: int.parse(idCompany)),
                           builder: (context, snapshot) {
                             if (!snapshot.hasData) {
                               return new Center(
@@ -159,9 +194,9 @@ class _NewFeedsState extends State<NewFeeds> {
                                 shape: BoxShape.circle,
                                 image: new DecorationImage(
                                   image: new ExactAssetImage(
-                                    _employee[0]['hinh_anh_nhan_vien'] == ''
+                                    listEmployees[0].image == ''
                                         ? ""
-                                        : "assets/images/${_employee[0]['hinh_anh_nhan_vien']}",
+                                        : "assets/images/${listEmployees[0].image}",
                                   ),
                                   fit: BoxFit.cover,
                                 ),
@@ -231,12 +266,12 @@ class _NewFeedsState extends State<NewFeeds> {
 //                                                padding: EdgeInsets.all(8.0),
 //                                                child: TextFormField(),
 //                                              ),
-                                            IconButton(
-                                              icon: Icon(Icons.camera),
-                                              onPressed: () {
-                                                getImage();
-                                              },
-                                            ),
+                                              IconButton(
+                                                icon: Icon(Icons.camera),
+                                                onPressed: () {
+                                                  getImage();
+                                                },
+                                              ),
                                               Container(
                                                 width: 100,
                                                 height: 100,
@@ -705,22 +740,5 @@ class _NewFeedsState extends State<NewFeeds> {
         ),
       ),
     );
-  }
-
-  Future<String> _layDuLieuNhanVien() async {
-    preferences = await SharedPreferences.getInstance();
-    Map param = {
-      'what': 110,
-      'ten_dang_nhap': preferences.getString('tenDangNhap'),
-    };
-    final url = BASE_URL_GET + '?input=' + jsonEncode(param);
-    var res = await http
-        .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
-    if (mounted) {
-      setState(() {
-        _employee = json.decode(res.body);
-      });
-    }
-    return "Success";
   }
 }
