@@ -48,6 +48,8 @@ class DataServices {
       'created_at': formatter.format(now),
     };
     var input = jsonEncode(parameters);
+    final url = BASE_URL_GET + "?input=" + input;
+    print("diem danh " + url);
     return _networkUtil.get(input);
   }
 
@@ -65,6 +67,8 @@ class DataServices {
       'status': status,
     };
     var input = jsonEncode(parameters);
+    final url = BASE_URL_GET + "?input=" + input;
+    print("kiem tra diem danh" + url);
     return _networkUtil.get(input);
   }
 
@@ -79,7 +83,7 @@ class DataServices {
     };
     var input = jsonEncode(parameters);
     final url = BASE_URL_GET + input;
-    print(url);
+    print("dem diem danh"+url);
     return _networkUtil.get(input);
   }
   //------------------------------500---------------------------------------
@@ -92,6 +96,7 @@ class DataServices {
       Map param = {'what': 600};
       var input = jsonEncode(param);
       final url = BASE_URL_GET + "?input=" + input;
+      print("lay tat ca cong ty " + url);
       var response = await http
           .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
       if (200 == response.statusCode) {
@@ -114,6 +119,7 @@ class DataServices {
     };
     var input = jsonEncode(param);
     final url = BASE_URL_GET + input;
+    print("lay loai ngay nghi " + url);
     print(url);
     final response = await http.get(url);
     if (response.statusCode == 200) {
@@ -160,6 +166,8 @@ class DataServices {
       'phone': phoneNumber,
     };
     var input = jsonEncode(parameters);
+    final url = BASE_URL_GET + "?input=" + input;
+    print("kiem tra nhan vien "+url);
     return _networkUtil.get(input);
   }
 
@@ -188,6 +196,8 @@ class DataServices {
       'created_at': formatter.format(now),
     };
     var input = jsonEncode(parameters);
+    final url = BASE_URL_GET + "?input=" + input;
+    print("dang ky " + url);
     return _networkUtil.get(input);
   }
 
@@ -202,6 +212,8 @@ class DataServices {
       'company_id': idCompany,
     };
     var input = jsonEncode(parameters);
+    final url = BASE_URL_GET + "?input=" + input;
+    print("dang nhap " + url);
     return _networkUtil.get(input);
   }
 
@@ -216,6 +228,7 @@ class DataServices {
     };
     var input = jsonEncode(parameters);
     final url = BASE_URL_GET + "?input=" + input;
+    print("lay nhan vien bang username " + url);
     final response = await http.get(url);
     if (response.statusCode == 200) {
       return employeeFromJson(response.body);
@@ -230,28 +243,25 @@ class DataServices {
   //------------------------------1500---------------------------------------
   //------------------------------1600---------------------------------------
   //------------------------------1700---------------------------------------
-  //------------------------------1800---------------------------------------
-  //------------------------------1900---------------------------------------
-  //------------------------------2000---------------------------------------
   // Insert data into table pShopMenu
   // created by : DatNQ
   // created at : 04/22/2020
   Future<void> sendRequestTakeLeave(
       {int idCompany,
-      int idEmloyee,
-      int idArea,
-      int idBranch,
-      int idDepartment,
-      int idPosition,
-      int idDateTakeLeaveType,
-      String startDate,
-      String endDate,
-      String dateTakeLeave,
-      int idTakeLeaveType,
-      int idShift,
-      int idTakeLeaveReason,
-      String content,
-      String reason}) async {
+        int idEmloyee,
+        int idArea,
+        int idBranch,
+        int idDepartment,
+        int idPosition,
+        int idDateTakeLeaveType,
+        String startDate,
+        String endDate,
+        String dateTakeLeave,
+        int idTakeLeaveType,
+        int idShift,
+        int idTakeLeaveReason,
+        String content,
+        String reason}) async {
     Map parameters = {
       'what': 1707,
       'company_id': idCompany,
@@ -273,7 +283,85 @@ class DataServices {
       'created_at': formatter.format(now),
     };
     var input = jsonEncode(parameters);
+    final url = BASE_URL_GET + "?input=" + input;
+    print("yeu cau nghi phep " + url);
     return _networkUtil.get(input);
   }
 
+  //------------------------------1800---------------------------------------
+  //------------------------------1900---------------------------------------
+  // Insert data into table pShopMenu
+  // created by : DatNQ
+  // created at : 20/12/2020
+  Future<void> sendRequestBeLate(
+      {int idCompany,
+        int idEmloyee,
+        int idArea,
+        int idBranch,
+        int idDepartment,
+        int idPosition,
+        String dateBeLate,
+        String hourOn,
+        int idShift,
+        int idBeLateReason,
+        String content,
+        String reason}) async {
+    Map parameters = {
+      'what': 1907,
+      'company_id': idCompany,
+      'employee_id': idEmloyee,
+      'area_id': idArea,
+      'branch_id': idBranch,
+      'department_id': idDepartment,
+      'position_id': idPosition,
+      'date': dateBeLate,
+      'hour_on': hourOn,
+      'shift_id': idShift,
+      'belatereason_id': idBeLateReason,
+      'content': content,
+      'reason': reason,
+      'status': 0,
+      'created_at': formatter.format(now),
+    };
+    var input = jsonEncode(parameters);
+    final url = BASE_URL_GET + "?input=" + input;
+    print("yeu cau di tre " + url);
+    return _networkUtil.get(input);
+  }
+  //------------------------------2000---------------------------------------
+  Future<void> sendRequestLeaveSoon(
+      {int idCompany,
+        int idEmloyee,
+        int idArea,
+        int idBranch,
+        int idDepartment,
+        int idPosition,
+        String dateLeaveSoon,
+        String hourOut,
+        int idShift,
+        int idLeaveSoonReason,
+        String content,
+        String reason}) async {
+    Map parameters = {
+      'what': 2007,
+      'company_id': idCompany,
+      'employee_id': idEmloyee,
+      'area_id': idArea,
+      'branch_id': idBranch,
+      'department_id': idDepartment,
+      'position_id': idPosition,
+      'date': dateLeaveSoon,
+      'hour_out': hourOut,
+      'shift_id': idShift,
+      'leavesoonreason_id': idLeaveSoonReason,
+      'content': content,
+      'reason': reason,
+      'status': 0,
+      'created_at': formatter.format(now),
+    };
+    var input = jsonEncode(parameters);
+    final url = BASE_URL_GET + "?input=" + input;
+    print("yeu cau ve som " + url);
+    return _networkUtil.get(input);
+  }
 }

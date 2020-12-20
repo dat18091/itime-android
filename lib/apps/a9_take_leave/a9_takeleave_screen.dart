@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
-import 'package:itime/apps/a9_take_leave/a9_select_takeleave_screen.dart';
 import 'package:itime/commons/constants.dart';
 import 'package:itime/services/data_services.dart';
 import 'package:itime/utils/network_util.dart';
@@ -313,103 +312,6 @@ class _TakeLeaveState extends State<TakeLeave> {
       );
     }
 
-    Widget _buildSendRequest() {
-      return new Container(
-        padding: new EdgeInsets.symmetric(vertical: 20.0),
-        width: double.infinity,
-        child: new RaisedButton(
-          elevation: 5.0,
-          onPressed: () async {
-            references = await SharedPreferences.getInstance();
-            _dataServices
-                .getEmployeeDataByUserName(
-                  idCompany: int.parse(references.getString("maCongTy")),
-                  userName: references.getString("tenDangNhap"),
-                )
-                .then((value) {
-                  listEmployees = value;
-                })
-                .catchError((error) => print("${error.toString()}"))
-                .whenComplete(() {
-                  print("mã công ty " + references.getString("maCongTy"));
-                  print("mã nhân viên " + listEmployees[0].id);
-                  print("mã vùng " + listEmployees[0].areaId);
-                  print("mã chi nhánh " + listEmployees[0].branchId);
-                  print("mã phòng ban " + listEmployees[0].departmentId);
-                  print("mã chức danh " + listEmployees[0].positionId);
-                  print("ngay bat dau " + _startDateController.text);
-                  print("ngay ket thuc " + _endDateController.text);
-                  print("ca lam " + _shift);
-                  print("ngay nghi " +
-                      DateFormat('yyyy-MM-dd').format(takeLeaveDate));
-                  _dataServices
-                      .sendRequestTakeLeave(
-                          idCompany:
-                              int.parse(references.getString("maCongTy")),
-                          idEmloyee: int.parse(listEmployees[0].id),
-                          idArea: int.parse(listEmployees[0].areaId),
-                          idBranch: int.parse(listEmployees[0].branchId),
-                          idDepartment:
-                              int.parse(listEmployees[0].departmentId),
-                          idPosition: int.parse(listEmployees[0].positionId),
-                          idDateTakeLeaveType: int.parse(_dateTakeLeaveTypes),
-                          startDate: DateFormat('yyyy-MM-dd').format(startDate),
-                          endDate: DateFormat('yyyy-MM-dd').format(endDate),
-                          dateTakeLeave:
-                              DateFormat('yyyy-MM-dd').format(takeLeaveDate),
-                          idTakeLeaveType: int.parse(_takeLeaveTypes),
-                          idShift: int.parse(_shift),
-                          idTakeLeaveReason: int.parse(_takeLeaveReasons),
-                          content: _contentController.text,
-                          reason: '')
-                      .then((dynamic res) {
-                        if (res.length > 0) {
-                          print("thanh cong 1");
-                        } else {
-                          setState(() {
-                            print("clear data");
-                            _dateTakeLeaveTypes = null;
-                            _startDateController.clear();
-                            _endDateController.clear();
-                            _dateTakeLeaveController.clear();
-                            _takeLeaveTypes = null;
-                            _shift = null;
-                            _takeLeaveReasons = null;
-                            _contentController.clear();
-                          });
-                          showAlert(
-                            title: "Thông báo",
-                            content: "Gửi yêu cầu thành công.",
-                            onPress: () {
-                              Navigator.of(context).pop();
-                            },
-                            subOnPress: null,
-                            context: context,
-                          );
-                        }
-                      })
-                      .catchError((error) => print("${error.toString()}"))
-                      .whenComplete(() {});
-                });
-          },
-          padding: new EdgeInsets.all(15.0),
-          shape: new RoundedRectangleBorder(
-            borderRadius: new BorderRadius.circular(30.0),
-          ),
-          color: Colors.white,
-          child: new Text(
-            'GỬI YÊU CẦU',
-            style: new TextStyle(
-              color: new HexColor("FF4E44"),
-              letterSpacing: 1.5,
-              fontSize: 18.0,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      );
-    }
-
     Widget _selectTakeLeaveTypes() {
       return new Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -593,6 +495,103 @@ class _TakeLeaveState extends State<TakeLeave> {
       );
     }
 
+    Widget _buildSendRequest() {
+      return new Container(
+        padding: new EdgeInsets.symmetric(vertical: 20.0),
+        width: double.infinity,
+        child: new RaisedButton(
+          elevation: 5.0,
+          onPressed: () async {
+            references = await SharedPreferences.getInstance();
+            _dataServices
+                .getEmployeeDataByUserName(
+              idCompany: int.parse(references.getString("maCongTy")),
+              userName: references.getString("tenDangNhap"),
+            )
+                .then((value) {
+              listEmployees = value;
+            })
+                .catchError((error) => print("${error.toString()}"))
+                .whenComplete(() {
+              print("mã công ty " + references.getString("maCongTy"));
+              print("mã nhân viên " + listEmployees[0].id);
+              print("mã vùng " + listEmployees[0].areaId);
+              print("mã chi nhánh " + listEmployees[0].branchId);
+              print("mã phòng ban " + listEmployees[0].departmentId);
+              print("mã chức danh " + listEmployees[0].positionId);
+              print("ngay bat dau " + _startDateController.text);
+              print("ngay ket thuc " + _endDateController.text);
+              print("ca lam " + _shift);
+              print("ngay nghi " +
+                  DateFormat('yyyy-MM-dd').format(takeLeaveDate));
+              _dataServices
+                  .sendRequestTakeLeave(
+                  idCompany:
+                  int.parse(references.getString("maCongTy")),
+                  idEmloyee: int.parse(listEmployees[0].id),
+                  idArea: int.parse(listEmployees[0].areaId),
+                  idBranch: int.parse(listEmployees[0].branchId),
+                  idDepartment:
+                  int.parse(listEmployees[0].departmentId),
+                  idPosition: int.parse(listEmployees[0].positionId),
+                  idDateTakeLeaveType: int.parse(_dateTakeLeaveTypes),
+                  startDate: DateFormat('yyyy-MM-dd').format(startDate),
+                  endDate: DateFormat('yyyy-MM-dd').format(endDate),
+                  dateTakeLeave:
+                  DateFormat('yyyy-MM-dd').format(takeLeaveDate),
+                  idTakeLeaveType: int.parse(_takeLeaveTypes),
+                  idShift: int.parse(_shift),
+                  idTakeLeaveReason: int.parse(_takeLeaveReasons),
+                  content: _contentController.text,
+                  reason: '')
+                  .then((dynamic res) {
+                if (res.length > 0) {
+                  print("thanh cong 1");
+                } else {
+                  setState(() {
+                    print("clear data");
+                    _dateTakeLeaveTypes = null;
+                    _startDateController.clear();
+                    _endDateController.clear();
+                    _dateTakeLeaveController.clear();
+                    _takeLeaveTypes = null;
+                    _shift = null;
+                    _takeLeaveReasons = null;
+                    _contentController.clear();
+                  });
+                  showAlert(
+                    title: "Thông báo",
+                    content: "Gửi yêu cầu thành công.",
+                    onPress: () {
+                      Navigator.of(context).pop();
+                    },
+                    subOnPress: null,
+                    context: context,
+                  );
+                }
+              })
+                  .catchError((error) => print("${error.toString()}"))
+                  .whenComplete(() {});
+            });
+          },
+          padding: new EdgeInsets.all(15.0),
+          shape: new RoundedRectangleBorder(
+            borderRadius: new BorderRadius.circular(30.0),
+          ),
+          color: Colors.white,
+          child: new Text(
+            'GỬI YÊU CẦU',
+            style: new TextStyle(
+              color: new HexColor("FF4E44"),
+              letterSpacing: 1.5,
+              fontSize: 18.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      );
+    }
+
     return new Form(
       key: _formKey,
       child: new SafeArea(
@@ -662,17 +661,19 @@ class _TakeLeaveState extends State<TakeLeave> {
                           SizedBox(height: 10.0),
                           _selectTakeLeaveTypes(),
                           SizedBox(height: 10.0),
-                          _takeLeaveTypes == "3"
-                              ? Column(
-                                  children: [
-                                    _selectShifts(),
-                                    SizedBox(height: 10.0),
-                                  ],
-                                )
-                              : Visibility(
-                                  child: Text("Gone"),
-                                  visible: false,
-                                ),
+                          _selectShifts(),
+                          SizedBox(height: 10.0),
+//                          _takeLeaveTypes == "3"
+//                              ? Column(
+//                                  children: [
+//                                    _selectShifts(),
+//                                    SizedBox(height: 10.0),
+//                                  ],
+//                                )
+//                              : Visibility(
+//                                  child: Text("Gone"),
+//                                  visible: false,
+//                                ),
                           _selectTakeLeaveReasons(),
                           SizedBox(height: 10.0),
                           _buildContentTakeLeave(),
@@ -763,56 +764,4 @@ class _TakeLeaveState extends State<TakeLeave> {
     }
     return "success";
   }
-
-//  Future<void> sendRequestTakeLeave(BuildContext context) async {
-//    formatter = new DateFormat('yyyy-MM-dd HH:mm:ss');
-//    references = await SharedPreferences.getInstance();
-//    if (_formKey.currentState.validate()) {
-//      _formKey.currentState.save();
-//      Map parameters = {
-//        'what': 1701,
-//        'employee_id': references.getString("maNhanVien"),
-//        'company_id': references.getString("maCongTy"),
-//        'area_id':
-//            _employee.length > 0 ? _employee[0]['area_id'].toString() : '',
-//        'branch_id':
-//            _employee.length > 0 ? _employee[0]['branch_id'].toString() : '',
-//        'department_id': _employee.length > 0
-//            ? _employee[0]['department_id'].toString()
-//            : '',
-//        'position_id':
-//            _employee.length > 0 ? _employee[0]['position_id'].toString() : '',
-//        'datetakeleavetype_id': _dateTakeLeaveTypes,
-//        'start_date': _startDateController.text,
-//        'end_date': _endDateController.text,
-//        'date_take_leave': _dateTakeLeaveController.text,
-//        'takeleavetype_id': _takeLeaveTypes,
-//        'shift_id': _shift,
-//        'takeleavereason_id': _takeLeaveReasons,
-//        'reason': '',
-//        'content': _contentController.text,
-//        'status': 0,
-//        'created_at': formatter.format(now),
-//        'updated_at': formatter.format(now),
-//      };
-//      var input = jsonEncode(parameters);
-//      print("them take leave " + input);
-//      return _netUtil.get(input);
-////      print(input);
-////      _netUtil.get(input).then((response) {
-////        setState(() {
-////          print(response);
-////          print("clear data");
-////          _dateTakeLeaveTypes = null;
-////          _startDateController.clear();
-////          _endDateController.clear();
-////          _dateTakeLeaveController.clear();
-////          _takeLeaveTypes = null;
-////          _shift = null;
-////          _takeLeaveReasons = null;
-////          _contentController.clear();
-////        });
-////      });
-//    }
-//  }
 }
