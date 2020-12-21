@@ -11,6 +11,8 @@ import 'package:itime/widgets/notification_box.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 /**
  * @author datnq
@@ -24,6 +26,11 @@ import 'package:http/http.dart' as http;
 NetworkUtil _netUtil = new NetworkUtil();
 
 class NotificationManager extends StatefulWidget {
+//
+//  final WebSocketChannel channel;
+//
+//  const NotificationManager({Key key, this.channel}) : super(key: key);
+
   @override
   _NotificationManagerState createState() => _NotificationManagerState();
 }
@@ -73,28 +80,41 @@ class _NotificationManagerState extends State<NotificationManager> {
     return new Scaffold(
 //      key: _scaffoldKey,
       backgroundColor: new HexColor("F6F6F6"),
-      drawer: new FutureBuilder(
-        future: _futureGetEmployeeByUserName,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return new DrawerCustom(
-              name:
-                  listEmployees[0].name.length > 0 ? listEmployees[0].name : '',
-              email: listEmployees[0].email.length > 0
-                  ? listEmployees[0].email
-                  : '',
-              image: listEmployees[0].image == ''
-                  ? ""
-                  : "assets/images/${listEmployees[0].image}",
-            );
-          } else {
-            return Drawer();
-          }
-        },
-      ),
+//      drawer: new FutureBuilder(
+//        future: _futureGetEmployeeByUserName,
+//        builder: (context, snapshot) {
+//          if (snapshot.hasData) {
+//            return new DrawerCustom(
+//              name:
+//                  listEmployees[0].name.length > 0 ? listEmployees[0].name : '',
+//              email: listEmployees[0].email.length > 0
+//                  ? listEmployees[0].email
+//                  : '',
+//              image: listEmployees[0].image == ''
+//                  ? ""
+//                  : "assets/images/${listEmployees[0].image}",
+//            );
+//          } else {
+//            return Drawer();
+//          }
+//        },
+//      ),
       appBar: new AppBar(
         backgroundColor: new HexColor("CC0000"),
-        title: new Text("IZITIME"),
+        automaticallyImplyLeading: false,
+        title: Row(
+          children: [
+            new Image.asset(
+              'assets/icons/logo-itime96x96.png',
+              width: 30,
+              height: 30,
+            ),
+            new SizedBox(
+              width: 5,
+            ),
+            new Text("IZITIME"),
+          ],
+        ),
         actions: <Widget>[
           new IconButton(
             icon: new Icon(Icons.search),
@@ -109,6 +129,12 @@ class _NotificationManagerState extends State<NotificationManager> {
       body: new SafeArea(
         child: new ListView(
           children: [
+//        StreamBuilder(
+//        stream: widget.channel.stream,
+//          builder: (context, snapshot) {
+//            return Text(snapshot.hasData ? '${snapshot.data}' : '');
+//          },
+//        ),
             new NotificationBox(),
             new NotificationBox(),
             new NotificationBox(),

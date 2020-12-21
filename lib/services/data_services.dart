@@ -288,6 +288,22 @@ class DataServices {
     return _networkUtil.get(input);
   }
 
+  // Count attendances
+  // created by : DatNQ
+  // created at : 07/12/2020
+  Future<void> countTakeLeave({int idEmployee, int idCompany}) async {
+    Map parameters = {
+      'what': 1708,
+      'employee_id': idEmployee,
+      'company_id': idCompany,
+      'status': 1
+    };
+    var input = jsonEncode(parameters);
+    final url = BASE_URL_GET + input;
+    print("dem nghi phep "+url);
+    return _networkUtil.get(input);
+  }
+
   //------------------------------1800---------------------------------------
   //------------------------------1900---------------------------------------
   // Insert data into table pShopMenu

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:itime/apps/a1_login/a1_login_screen.dart';
 import 'package:itime/commons/constants.dart';
 import 'package:itime/models/Employee.dart';
 import 'package:itime/utils/network_util.dart';
@@ -26,144 +27,109 @@ class PersonalScreen extends StatefulWidget {
 }
 
 class _PersonalScreenState extends State<PersonalScreen> {
-  SharedPreferences references;
-  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  List _employee = new List<Employee>();
-
-  @override
-  void initState() {
-    super.initState();
-    _layDuLieuNhanVien();
-  }
-
+  SharedPreferences preferences;
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      backgroundColor: new HexColor("F6F6F6"),
-      drawer: new FutureBuilder(
-        future: _layDuLieuNhanVien(),
-        builder: (context, snapshot) {
-//          if (snapshot.hasData) {
-//            return new DrawerCustom(
-//              employee: new Employee(
-//                  name: _employee.length > 0
-//                      ? _employee[0]['name'].toString()
-//                      : '',
-//                  email: _employee.length > 0
-//                      ? _employee[0]['email'].toString()
-//                      : '',
-//                  image: _employee[0]['image'] == ''
-//                      ? ""
-//                      : "assets/images/${_employee[0]['image']}"),
-//            );
-//          } else {
-//            return new Drawer();
-//          }
-        },
-      ),
-      appBar: new AppBar(
-        backgroundColor: new HexColor("CC0000"),
-        title: new Text("IZITIME"),
+    return Scaffold(
+      backgroundColor: HexColor("F6F6F6"),
+//      drawer: new DrawerCustom(),
+      appBar: AppBar(
+        backgroundColor: HexColor("CC0000"),
+        title: Row(
+          children: [
+            new Image.asset(
+              'assets/icons/logo-itime96x96.png',
+              width: 30,
+              height: 30,
+            ),
+            new SizedBox(
+              width: 5,
+            ),
+            new Text("IZITIME"),
+          ],
+        ),
+        automaticallyImplyLeading: false,
         actions: <Widget>[
-          new IconButton(
+          IconButton(
             icon: new Icon(Icons.search),
             onPressed: () {},
           ),
-          new IconButton(
+          IconButton(
             icon: new Icon(Icons.notifications),
             onPressed: () {},
           ),
         ],
       ),
-      body: new ListView(
+      body: ListView(
         children: <Widget>[
-          new FutureBuilder(
-            future: _layDuLieuNhanVien(),
-            builder: (context, snapshot) {
-              return new UserAccountsDrawerHeader(
-                accountName: new Text(
-                  !snapshot.hasData
-                      ? ""
-                      : "${_employee[0]['ten_nhan_vien']}",
-                  style: new TextStyle(
-                    color: new HexColor("FFFFFF"),
-                    fontSize: kTextSize,
-                  ),
-                ),
-                accountEmail: new Text(
-                  !snapshot.hasData
-                      ? ""
-                      : "${_employee[0]['email_nhan_vien']}",
-                  style: new TextStyle(
-                    color: new HexColor("FFFFFF"),
-                  ),
-                ),
-                decoration: new BoxDecoration(
-                  image: new DecorationImage(
-                    image: new ExactAssetImage(
-                        'assets/images/background-user-default-1.jpg'),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                currentAccountPicture: new CircleAvatar(
-                  backgroundImage: new AssetImage(
-                    !snapshot.hasData
-                        ? "assets/images/photo.png"
-                        : "assets/images/${_employee[0]['hinh_anh_nhan_vien']}",
-                  ),
-                ),
-              );
-            },
+          new UserAccountsDrawerHeader(
+            accountName: new Text("Dat nguyen",
+                style: TextStyle(
+                  color: HexColor("FFFFFF"),
+                  fontSize: kTextSize,
+                )),
+            accountEmail: new Text("dat18090@gmail.com",
+                style: TextStyle(color: HexColor("FFFFFF"))),
+            decoration: new BoxDecoration(
+              image: new DecorationImage(
+                image: new ExactAssetImage(
+                    'assets/images/background-user-default-1.jpg'),
+                fit: BoxFit.cover,
+              ),
+            ),
+            currentAccountPicture: CircleAvatar(
+                backgroundImage: NetworkImage(
+                    "https://randomuser.me/api/portraits/men/46.jpg")),
           ),
-          new Padding(
+          Padding(
             padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-            child: new Row(children: <Widget>[
-              new Icon(
+            child: Row(children: <Widget>[
+              Icon(
                 Icons.add_chart,
                 color: Colors.pink[500],
                 size: 30,
               ),
-              new SizedBox(width: 10),
-              new Text(
+              SizedBox(width: 10),
+              Text(
                 "Báo cáo",
-                style: new TextStyle(fontSize: kTextSize),
+                style: TextStyle(fontSize: kTextSize),
               ),
             ]),
           ),
-          new Divider(),
-          new Padding(
+          Divider(),
+          Padding(
             padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-            child: new Row(children: <Widget>[
-              new Icon(
+            child: Row(children: <Widget>[
+              Icon(
                 Icons.add_to_home_screen_outlined,
                 color: Colors.green,
                 size: 30,
               ),
-              new SizedBox(width: 10),
-              new Text(
+              SizedBox(width: 10),
+              Text(
                 "Quản lý phép",
-                style: new TextStyle(fontSize: kTextSize),
+                style: TextStyle(fontSize: kTextSize),
               ),
             ]),
           ),
-          new Divider(),
-          new Padding(
+          Divider(),
+          Padding(
             padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-            child: new Row(children: <Widget>[
-              new Icon(
+            child: Row(children: <Widget>[
+              Icon(
                 Icons.attach_money,
                 color: Colors.purple,
                 size: 30,
               ),
-              new SizedBox(width: 10),
-              new Text(
+              SizedBox(width: 10),
+              Text(
                 "Phiếu lương",
-                style: new TextStyle(fontSize: kTextSize),
+                style: TextStyle(fontSize: kTextSize),
               ),
             ]),
           ),
-          new Divider(),
-          new Padding(
+          Divider(),
+          Padding(
             padding: const EdgeInsets.only(left: 10.0, right: 10.0),
             child: Row(children: <Widget>[
               Icon(
@@ -275,20 +241,33 @@ class _PersonalScreenState extends State<PersonalScreen> {
             ]),
           ),
           Divider(),
-          Padding(
-            padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-            child: Row(children: <Widget>[
-              Icon(
-                Icons.power_settings_new,
-                color: Colors.red,
-                size: 30,
-              ),
-              SizedBox(width: 10),
-              Text(
-                "Đăng xuất",
-                style: TextStyle(fontSize: kTextSize),
-              ),
-            ]),
+          new GestureDetector(
+            onTap: () async {
+              preferences = await SharedPreferences.getInstance();
+              preferences.remove("maCongTy");
+              preferences.remove("tenDangNhap");
+              Navigator.push(
+                context,
+                new MaterialPageRoute(
+                  builder: (context) => new LoginScreen(),
+                ),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+              child: Row(children: <Widget>[
+                Icon(
+                  Icons.power_settings_new,
+                  color: Colors.red,
+                  size: 30,
+                ),
+                SizedBox(width: 10),
+                Text(
+                  "Đăng xuất",
+                  style: TextStyle(fontSize: kTextSize),
+                ),
+              ]),
+            ),
           ),
           Divider(),
           Padding(
@@ -307,22 +286,5 @@ class _PersonalScreenState extends State<PersonalScreen> {
         ],
       ),
     );
-  }
-
-  Future<String> _layDuLieuNhanVien() async {
-    references = await SharedPreferences.getInstance();
-    Map param = {
-      'what': 110,
-      'ten_dang_nhap': references.getString('tenDangNhap'),
-    };
-    final url = BASE_URL_GET + '?input=' + jsonEncode(param);
-    var res = await http
-        .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
-    if (mounted) {
-      setState(() {
-        _employee = json.decode(res.body);
-      });
-    }
-    return "Success";
   }
 }

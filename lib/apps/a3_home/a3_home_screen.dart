@@ -1,6 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:itime/apps/a10_report/a10_report_screen.dart';
+import 'package:itime/apps/a11_reward/a11_reward_screen.dart';
+import 'package:itime/apps/a12_schedule/a12_schedule_screen.dart';
+import 'package:itime/apps/a13_shift_work/a13_shiftworks_screen.dart';
+import 'package:itime/apps/a14_salary/a14_salary_screen.dart';
 import 'package:itime/apps/a8_attendance/a8_attendance_screen.dart';
 import 'package:itime/apps/a9_take_leave/a9_select_takeleave_screen.dart';
 import 'package:itime/commons/constants.dart';
@@ -23,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // Get list from future
   Future<List<Employee>> _futureGetEmployeeByUserName;
   Future<dynamic> _futureCountAttendance;
+  Future<dynamic> _futureCountTakeLeave;
 
   // Get list model
   List<Employee> listEmployees = [];
@@ -31,6 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String userName;
   String idCompany;
   int countAttendance = 0;
+  int countTakeLeave = 0;
 
   // Define object from library
   SharedPreferences preferences;
@@ -70,9 +77,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 .getEmployeeDataByUserName(
                     idCompany: int.parse(idCompany), userName: userName)
                 .then((value) {
-              setState(() {
-                listEmployees = value;
-              });
+                  setState(() {
+                    listEmployees = value;
+                  });
                 })
                 .catchError((error) => print("${error.toString()}"))
                 .whenComplete(() {
@@ -85,7 +92,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     setState(() {
                       countAttendance =
                           int.parse(res[0]['CountTakeLeave'].toString());
-                      print(countAttendance);
+                      print("diem danh "+countAttendance.toString());
+                    });
+                  });
+                  print("next active");
+                  _futureCountTakeLeave = _dataServices
+                      .countTakeLeave(
+                          idCompany: int.parse(idCompany),
+                          idEmployee: int.parse(listEmployees[0].id))
+                      .then((dynamic takeLeave) {
+                    setState(() {
+                      countTakeLeave =
+                          int.parse(takeLeave[0]['TakeLeave'].toString());
+                      print("ngay nghi "+countTakeLeave.toString());
                     });
                   });
                 });
@@ -163,8 +182,14 @@ class _HomeScreenState extends State<HomeScreen> {
           backgroundColor: new HexColor("CC0000"),
           title: Row(
             children: [
-              new Image.asset('assets/icons/logo-itime96x96.png', width: 30, height: 30,),
-              new SizedBox(width: 5,),
+              new Image.asset(
+                'assets/icons/logo-itime96x96.png',
+                width: 30,
+                height: 30,
+              ),
+              new SizedBox(
+                width: 5,
+              ),
               new Text("IZITIME"),
             ],
           ),
@@ -297,62 +322,67 @@ class _HomeScreenState extends State<HomeScreen> {
                             );
                           },
                         ),
-                        new Expanded(
-                          flex: 1,
-                          child: new Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: new Container(
-                              decoration: new BoxDecoration(
-                                gradient: new LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    stops: [
-                                      0.2,
-                                      0.4,
-                                      0.6,
-                                      0.9
+                        new FutureBuilder(
+                          future: _futureCountTakeLeave,
+                          builder: (context, snapshot){
+                            return new Expanded(
+                              flex: 1,
+                              child: new Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: new Container(
+                                  decoration: new BoxDecoration(
+                                    gradient: new LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        stops: [
+                                          0.2,
+                                          0.4,
+                                          0.6,
+                                          0.9
+                                        ],
+                                        colors: [
+                                          new HexColor("F94261"),
+                                          new HexColor("E81E63"),
+                                          new HexColor("EC407A"),
+                                          new HexColor("F48FB1")
+                                        ]),
+                                    borderRadius: new BorderRadius.all(
+                                      new Radius.circular(
+                                        10.0,
+                                      ), //         <--- border radius here
+                                    ),
+                                  ),
+                                  height: size.height / 7,
+                                  child: new Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      new Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: new Text(
+                                          'Ngày nghỉ',
+                                          style: new TextStyle(
+                                            color: new HexColor("FFFFFF"),
+                                            fontSize: kTextSize,
+                                          ),
+                                        ),
+                                      ),
+                                      new Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: new Text(
+                                          '${countTakeLeave.toString()}',
+                                          style: new TextStyle(
+                                            color: new HexColor("FFFFFF"),
+                                            fontSize: 25,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
                                     ],
-                                    colors: [
-                                      new HexColor("F94261"),
-                                      new HexColor("E81E63"),
-                                      new HexColor("EC407A"),
-                                      new HexColor("F48FB1")
-                                    ]),
-                                borderRadius: new BorderRadius.all(
-                                  new Radius.circular(
-                                    10.0,
-                                  ), //         <--- border radius here
+                                  ),
                                 ),
                               ),
-                              height: size.height / 7,
-                              child: new Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  new Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: new Text(
-                                      'Ngày nghỉ',
-                                      style: new TextStyle(
-                                        color: new HexColor("FFFFFF"),
-                                        fontSize: kTextSize,
-                                      ),
-                                    ),
-                                  ),
-                                  new Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: new Text(
-                                      '20',
-                                      style: new TextStyle(
-                                        color: new HexColor("FFFFFF"),
-                                        fontSize: 25,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -538,7 +568,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: new Padding(
                             padding: const EdgeInsets.all(5.0),
                             child: new GestureDetector(
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  new MaterialPageRoute(
+                                    builder: (context) =>
+                                    new ReportSummary(),
+                                  ),
+                                );
+                              },
                               child: _buildActiveBox(
                                 image: 'assets/icons/bao-cao.png',
                                 title: 'Báo cáo',
@@ -574,7 +611,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: new Padding(
                             padding: const EdgeInsets.all(5.0),
                             child: new GestureDetector(
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  new MaterialPageRoute(
+                                    builder: (context) => new RewardScreen(),
+                                  ),
+                                );
+                              },
                               child: _buildActiveBox(
                                 image: 'assets/icons/reward.png',
                                 title: 'Đổi thưởng',
@@ -586,7 +629,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           flex: 1,
                           child: GestureDetector(
                             onTap: () {
-                              Navigator.of(context).pushNamed("/task_schedule");
+                              Navigator.of(context).push(
+                                new MaterialPageRoute(
+                                  builder: (context) => new TaskSchedule(),
+                                ),
+                              );
                             },
                             child: new Padding(
                               padding: const EdgeInsets.all(5.0),
@@ -601,7 +648,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           flex: 1,
                           child: GestureDetector(
                             onTap: () {
-                              Navigator.of(context).pushNamed("/shift-works");
+                              Navigator.of(context).push(
+                                new MaterialPageRoute(
+                                  builder: (context) => new ShiftWork(),
+                                ),
+                              );
                             },
                             child: new Padding(
                               padding: const EdgeInsets.all(5.0),
@@ -620,7 +671,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           flex: 1,
                           child: GestureDetector(
                             onTap: () {
-                              Navigator.of(context).pushNamed("/salary");
+
                             },
                             child: new Padding(
                               padding: const EdgeInsets.all(5.0),
@@ -633,11 +684,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         new Expanded(
                           flex: 1,
-                          child: new Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: _buildActiveBox(
-                              image: 'assets/icons/gio-lam.png',
-                              title: 'Giờ làm',
+                          child: new GestureDetector(
+                            onTap: (){
+                              Navigator.of(context).push(
+                                new MaterialPageRoute(
+                                  builder: (context) => new SalaryScreen(),
+                                ),
+                              );
+                            },
+                            child: new Padding(
+                              padding: const EdgeInsets.all(5.0),
+                              child: _buildActiveBox(
+                                image: 'assets/icons/cham-cong.png',
+                                title: 'Chấm công',
+                              ),
                             ),
                           ),
                         ),

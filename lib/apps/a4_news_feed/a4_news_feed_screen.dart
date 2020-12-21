@@ -27,453 +27,264 @@ class NewFeeds extends StatefulWidget {
 }
 
 class _NewFeedsState extends State<NewFeeds> {
-  // Get list from future
-  Future<List<Employee>> _futureGetEmployeeByUserName;
-
-  // Get list model
-  List<Employee> listEmployees = [];
-
-  // Define base data type
-  String _mySelection;
-  String userName;
-  String idCompany;
-
-  // Define object from library
-  SharedPreferences preferences;
-  GlobalKey<FormState> _formKey = new GlobalKey();
-  TextEditingController contentController = new TextEditingController();
-
-  File _image;
-  final picker = ImagePicker();
-
-  // Define datetime
-  var now = new DateTime.now();
-  var formatter = new DateFormat('yyyy-MM-dd HH:mm:ss');
-
-  // Sub function
-  Future _choiceImage() async {
-    var pickedImage = await picker.getImage(source: ImageSource.gallery);
-    setState(() {
-      _image = File(pickedImage.path);
-    });
-  }
-
-  Future getImage() async {
-    final pickedFile = await picker.getImage(source: ImageSource.gallery);
-
-    setState(() {
-      if (pickedFile != null) {
-        _image = File(pickedFile.path);
-      } else {
-        print('No image selected.');
-      }
-    });
-  }
-
-  Future<String> getUserName() async {
-    preferences = await SharedPreferences.getInstance();
-    userName = preferences.getString('tenDangNhap');
-    return userName;
-  }
-
-  Future<String> getIdCompany() async {
-    preferences = await SharedPreferences.getInstance();
-    idCompany = preferences.getString('maCongTy');
-    return idCompany;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    // lay ten dang nhap
-    getUserName()
-        .then((username) {
-      userName = username;
-      print(userName);
-    })
-        .catchError((error) => print("${error.toString()}"))
-        .whenComplete(() {
-      // khi hoan thanh lay ma nhan vien
-      getIdCompany()
-          .then((idcompany) {
-        idCompany = idcompany;
-        print(idCompany);
-      })
-          .catchError((error) => print("${error.toString()}"))
-          .whenComplete(() {});
-    });
-    // khi hoan thanh lay du lieu nhan vien
-    _futureGetEmployeeByUserName = _dataServices
-        .getEmployeeDataByUserName(
-        idCompany: int.parse(idCompany), userName: userName)
-        .then((value) {
-      listEmployees = value;
-    })
-        .catchError((error) => print("${error.toString()}"))
-        .whenComplete(() {
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-
-    return new SafeArea(
-      child: new Scaffold(
-//        key: _formKey,
-        drawer: new FutureBuilder(
-          future: _futureGetEmployeeByUserName,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return new DrawerCustom(
-                name: listEmployees[0].name.length > 0
-                    ? listEmployees[0].name
-                    : '',
-                email: listEmployees[0].email.length > 0
-                    ? listEmployees[0].email
-                    : '',
-                image: listEmployees[0].image == ''
-                    ? ""
-                    : "assets/images/${listEmployees[0].image}",
-              );
-            } else {
-              return Drawer();
-            }
-          },
-        ),
-        appBar: new AppBar(
-          // automaticallyImplyLeading: false,
-          backgroundColor: new HexColor("CC0000"),
-          // elevation: 0.0,
-          title: new Text("IZITIME"),
-          actions: <Widget>[
-            new IconButton(
-              icon: new Icon(Icons.search),
-              onPressed: () {},
+    return Scaffold(
+//      drawer: new DrawerCustom(),
+      appBar: new AppBar(
+         automaticallyImplyLeading: false,
+        backgroundColor: new HexColor("CC0000"),
+        // elevation: 0.0,
+        title: Row(
+          children: [
+            new Image.asset(
+              'assets/icons/logo-itime96x96.png',
+              width: 30,
+              height: 30,
             ),
-            new IconButton(
-              icon: new Icon(Icons.notifications),
-              onPressed: () {
-                Navigator.of(context).pushNamed("/notification");
-              },
+            new SizedBox(
+              width: 5,
             ),
+            new Text("IZITIME"),
           ],
         ),
-        backgroundColor: new HexColor("F6F6F6"),
-        body: new ListView(
-          children: <Widget>[
-            new Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: new Container(
-                padding: const EdgeInsets.all(10.0),
-                width: double.infinity,
-                height: size.height / 5,
-                decoration: new BoxDecoration(
-                  borderRadius: new BorderRadius.circular(10.0),
-                  color: Colors.white,
-                ),
-                child: new Column(
-                  children: <Widget>[
-                    new Row(
-                      children: <Widget>[
-                        new FutureBuilder(
-                          future: _dataServices.getEmployeeDataByUserName(
-                              userName: userName,
-                              idCompany: int.parse(idCompany)),
-                          builder: (context, snapshot) {
-                            if (!snapshot.hasData) {
-                              return new Center(
-                                child: new CircularProgressIndicator(),
-                              );
-                            }
-                            return new Container(
-                              width: 45,
-                              height: 45,
-                              decoration: new BoxDecoration(
-                                color: Colors.orange,
-                                shape: BoxShape.circle,
-                                image: new DecorationImage(
-                                  image: new ExactAssetImage(
-                                    listEmployees[0].image == ''
-                                        ? ""
-                                        : "assets/images/${listEmployees[0].image}",
-                                  ),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            );
-                          },
+        actions: <Widget>[
+          new IconButton(
+            icon: new Icon(Icons.search),
+            onPressed: () {},
+          ),
+          new IconButton(
+            icon: new Icon(Icons.notifications),
+            onPressed: () {
+              Navigator.of(context).pushNamed("/notification");
+            },
+          ),
+        ],
+      ),
+      backgroundColor: new HexColor("F6F6F6"),
+      body: new ListView(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Container(
+              // color: Colors.white,
+              height: 70,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10.0),
+                color: Colors.white,
+              ),
+              padding: const EdgeInsets.only(
+                  top: 5.0, right: 10, left: 10, bottom: 5),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: new BoxDecoration(
+                        borderRadius: BorderRadius.circular(50.0),
+                        color: Colors.grey[200],
+                      ),
+                      child: TextField(
+                        decoration: new InputDecoration(
+                          prefixIcon:
+                          new Icon(Icons.search, color: Colors.grey),
+                          border: InputBorder.none,
+                          hintStyle: new TextStyle(color: Colors.grey),
+                          hintText: "Search",
                         ),
-                        new SizedBox(width: 10),
-                        new GestureDetector(
-                          onTap: () {
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    content: Stack(
-                                      overflow: Overflow.visible,
-                                      children: <Widget>[
-                                        Positioned(
-                                          right: -40.0,
-                                          top: -40.0,
-                                          child: InkResponse(
-                                            onTap: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: CircleAvatar(
-                                              child: Icon(
-                                                Icons.close,
-                                                color: HexColor("FFFFFF"),
-                                              ),
-                                              backgroundColor: Colors.red,
-                                            ),
-                                          ),
-                                        ),
-                                        Form(
-                                          key: _formKey,
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: <Widget>[
-                                              new Container(
-                                                width: size.width / 1.4,
-                                                height: size.height / 14,
-                                                decoration: new BoxDecoration(
-                                                  borderRadius:
-                                                      new BorderRadius.circular(
-                                                          50.0),
-                                                  color: Colors.grey[200],
-                                                ),
-                                                child: new TextFormField(
-                                                  decoration:
-                                                      new InputDecoration(
-                                                    contentPadding:
-                                                        EdgeInsets.only(
-                                                            left: 20.0),
-                                                    border: InputBorder.none,
-                                                    hintStyle: new TextStyle(
-                                                      color: new HexColor(
-                                                          "606266"),
-                                                      fontSize: kTextSize - 3,
-                                                    ),
-                                                    hintText:
-                                                        "Bạn đang nghĩ gì?",
-                                                  ),
-                                                  controller: contentController,
-                                                ),
-                                              ),
-//                                              Padding(
-//                                                padding: EdgeInsets.all(8.0),
-//                                                child: TextFormField(),
-//                                              ),
-                                              IconButton(
-                                                icon: Icon(Icons.camera),
-                                                onPressed: () {
-                                                  getImage();
-                                                },
-                                              ),
-                                              Container(
-                                                width: 100,
-                                                height: 100,
-                                                child: _image == null
-                                                    ? Text("No image selected")
-                                                    : Image.file(_image),
-                                              ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: RaisedButton(
-                                                  child: Text("Submitß"),
-                                                  onPressed: () {
-//                                                    if (_formKey.currentState
-//                                                        .validate()) {
-//                                                      _formKey.currentState
-//                                                          .save();
-//                                                    }
-                                                  },
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                });
-                          },
-                          child: new Container(
-                            width: size.width / 1.4,
-                            height: size.height / 14,
-                            decoration: new BoxDecoration(
-                              borderRadius: new BorderRadius.circular(50.0),
-                              color: Colors.grey[200],
-                            ),
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.only(top: 12.0, left: 20.0),
-                              child: Text(
-                                "Bạn đang nghĩ gì?",
-                                style: TextStyle(fontSize: 16.0),
-                              ),
-                            ),
-//                            child: new TextFormField(
-//                              decoration: new InputDecoration(
-//                                contentPadding: EdgeInsets.only(left: 20.0),
-//                                border: InputBorder.none,
-//                                hintStyle: new TextStyle(
-//                                  color: new HexColor("606266"),
-//                                  fontSize: kTextSize - 3,
-//                                ),
-//                                hintText: "Bạn đang nghĩ gì?",
-//                              ),
-////                            controller: contentController,
-//                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    new SizedBox(height: 10.0),
-                    new Container(
-                      child: new Divider(
-                        thickness: 2,
-                        color: new HexColor("E4E6EB"),
                       ),
                     ),
-                    new SizedBox(height: 10.0),
-                    new Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        new Container(
-                          child: new Row(
-                            children: [
-                              new Icon(
-                                Icons.lock_open,
-                                color: Colors.grey,
-                                size: 20,
-                              ),
-                              new Text(
-                                "Phát trực tiếp",
-                                style: new TextStyle(fontSize: 15),
-                              ),
-                            ],
-                          ),
-                        ),
-                        new Container(
-                          child: new Row(
-                            children: [
-                              new Icon(
-                                Icons.lock_open,
-                                color: Colors.grey,
-                                size: 20,
-                              ),
-                              new Text(
-                                "Ảnh",
-                                style: new TextStyle(fontSize: 15),
-                              ),
-                            ],
-                          ),
-//                          ),
-//                          onTap: (){
-//                            _choiceImage();
-//                          },
-                        ),
-                        new Container(
-                          child: new Row(
-                            children: [
-                              new Icon(
-                                Icons.lock_open,
-                                color: Colors.grey,
-                                size: 20,
-                              ),
-                              new Text(
-                                "Phòng họp",
-                                style: new TextStyle(fontSize: 15),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                  ),
+                  SizedBox(width: 20),
+                  Icon(Icons.camera_alt, color: Colors.grey[800], size: 30)
+                ],
               ),
             ),
-            new Padding(
+          ),
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Container(
               padding: const EdgeInsets.all(10.0),
-              child: new Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              // color: Colors.white,
+              width: double.infinity,
+              height: 130,
+              decoration: BoxDecoration(
+                // border: new OutlineInputBorder(
+                //   borderRadius: const BorderRadius.all(
+                //     const Radius.circular(30.0),
+                //   ),
+                // ),
+                borderRadius: BorderRadius.circular(10.0),
+                color: Colors.white,
+              ),
+              child: Column(
                 children: [
-                  new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
+                  Row(
                     children: [
-                      new Text("Stories",
-                          style: new TextStyle(
-                              fontSize: kTextSize,
-                              color: Colors.grey[800],
-                              fontWeight: FontWeight.bold)),
-                      new Text("See Archive"),
+                      Container(
+                        width: 45,
+                        height: 45,
+                        decoration: BoxDecoration(
+                            color: Colors.orange, shape: BoxShape.circle),
+                      ),
+                      SizedBox(width: 10),
+                      Container(
+                        width: 260,
+                        height: 45,
+                        // color: Hexcolor("E9EAEF"),
+                        child: new TextField(
+                          decoration: new InputDecoration(
+                            // border: new OutlineInputBorder(
+                            //   borderRadius: const BorderRadius.all(
+                            //     const Radius.circular(30.0),
+                            //   ),
+                            // ),
+                            // filled: true,
+                              hintStyle: new TextStyle(color: Colors.grey[800]),
+                              hintText: "Bạn đang nghĩ gì?",
+                              fillColor: Colors.white70),
+                        ),
+                      ),
                     ],
                   ),
-                  new SizedBox(height: 20),
-                  new Container(
-                    height: 180,
-                    child: new ListView(
-                      shrinkWrap: true,
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        makeStory(
-                            storyImage: "assets/stories/story1.jpg",
-                            userImage: "assets/users/user1.jpg",
-                            userName: "Hoàng Ngân"),
-                        makeStory(
-                            storyImage: "assets/stories/story2.jpg",
-                            userImage: "assets/users/user2.jpg",
-                            userName: "Nguyễn Thảo Phương"),
-                        makeStory(
-                            storyImage: "assets/stories/story3.jpg",
-                            userImage: "assets/users/user3.jpg",
-                            userName: "Ny Sun"),
-                      ],
-                    ),
-                  ),
-                  new SizedBox(height: 20),
-                  makeFeed(
-                    userName: "Ny Sun",
-                    userImage: "assets/users/user3.jpg",
-                    feedTime: "2 giờ",
-                    feedText: "Không có tiền😩😩nhưng thứ gì cũng muốn mua🤭🤭",
-                    feedImage: "assets/feeds/feed1.jpg",
+                  SizedBox(height: 30.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        // width: 280,
+                        child: Row(
+                          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Icon(
+                              Icons.lock_open,
+                              color: Colors.grey,
+                              size: 20,
+                            ),
+                            // SizedBox(width: 10),
+                            Text(
+                              "Phát trực tiếp",
+                              style: TextStyle(fontSize: 15),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        // width: 280,
+                        child: Row(
+                          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Icon(
+                              Icons.lock_open,
+                              color: Colors.grey,
+                              size: 20,
+                            ),
+                            // SizedBox(width: 10),
+                            Text(
+                              "Ảnh",
+                              style: TextStyle(fontSize: 15),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        // width: 280,
+                        child: Row(
+                          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Icon(
+                              Icons.lock_open,
+                              color: Colors.grey,
+                              size: 20,
+                            ),
+                            // SizedBox(width: 10),
+                            Text(
+                              "Phòng họp",
+                              style: TextStyle(fontSize: 15),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text("Stories",
+                        style: TextStyle(
+                            fontSize: kTextSize,
+                            color: Colors.grey[800],
+                            fontWeight: FontWeight.bold)),
+                    Text("See Archive"),
+                  ],
+                ),
+                SizedBox(height: 20),
+                Container(
+                  height: 180,
+                  child: ListView(
+                    shrinkWrap: true,
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      makeStory(
+                          storyImage: "assets/stories/story1.jpg",
+                          userImage: "assets/users/user1.jpg",
+                          userName: "Hoàng Ngân"),
+                      makeStory(
+                          storyImage: "assets/stories/story2.jpg",
+                          userImage: "assets/users/user2.jpg",
+                          userName: "Nguyễn Thảo Phương"),
+                      makeStory(
+                          storyImage: "assets/stories/story3.jpg",
+                          userImage: "assets/users/user3.jpg",
+                          userName: "Ny Sun"),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20),
+                makeFeed(
+                  userName: "Ny Sun",
+                  userImage: "assets/users/user3.jpg",
+                  feedTime: "2 giờ",
+                  feedText: "Không có tiền😩😩nhưng thứ gì cũng muốn mua🤭🤭",
+                  feedImage: "assets/feeds/feed1.jpg",
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget makeStory({storyImage, userImage, userName}) {
-    return new AspectRatio(
+    return AspectRatio(
       aspectRatio: 1.6 / 2,
-      child: new Container(
-        margin: new EdgeInsets.only(
+      child: Container(
+        margin: EdgeInsets.only(
           right: 10,
         ),
-        decoration: new BoxDecoration(
-          borderRadius: new BorderRadius.circular(10.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10.0),
           image: new DecorationImage(
             image: new AssetImage(storyImage),
             fit: BoxFit.cover,
           ),
         ),
-        child: new Container(
+        child: Container(
           padding: const EdgeInsets.all(10.0),
           decoration: new BoxDecoration(
-            borderRadius: new BorderRadius.circular(15.0),
-            gradient: new LinearGradient(
+            borderRadius: BorderRadius.circular(15.0),
+            gradient: LinearGradient(
               begin: Alignment.bottomRight,
               colors: [
                 Colors.black.withOpacity(.9),
@@ -481,26 +292,26 @@ class _NewFeedsState extends State<NewFeeds> {
               ],
             ),
           ),
-          child: new Column(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              new Container(
+              Container(
                 width: 40,
                 height: 40,
-                decoration: new BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: new Border.all(color: Colors.white, width: 2),
-                  image: new DecorationImage(
-                    image: new AssetImage(userImage),
+                  border: Border.all(color: Colors.white, width: 2),
+                  image: DecorationImage(
+                    image: AssetImage(userImage),
                     fit: BoxFit.cover,
                   ),
                 ),
               ),
-              new Text(
+              Text(
                 userName,
-                style: new TextStyle(
-                  color: new HexColor("FFFFFF"),
+                style: TextStyle(
+                  color: HexColor("FFFFFF"),
                 ),
               ),
             ],
@@ -511,42 +322,42 @@ class _NewFeedsState extends State<NewFeeds> {
   }
 
   Widget makeFeed({userName, userImage, feedTime, feedText, feedImage}) {
-    return new Container(
-      margin: new EdgeInsets.only(bottom: 20),
-      child: new Column(
+    return Container(
+      margin: EdgeInsets.only(bottom: 20),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          new Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              new Row(
+              Row(
                 children: [
-                  new Container(
+                  Container(
                     width: 50,
                     height: 50,
-                    decoration: new BoxDecoration(
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       image: new DecorationImage(
-                        image: new AssetImage(userImage),
+                        image: AssetImage(userImage),
                         fit: BoxFit.cover,
                       ),
                     ),
                   ),
-                  new SizedBox(width: 10),
-                  new Column(
+                  SizedBox(width: 10),
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      new Text(
+                      Text(
                         userName,
-                        style: new TextStyle(
+                        style: TextStyle(
                             color: Colors.grey[900],
                             fontSize: kTextSize,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1),
                       ),
-                      new Text(
+                      Text(
                         feedTime,
-                        style: new TextStyle(
+                        style: TextStyle(
                           fontSize: kTextSize - 3,
                           color: Colors.grey,
                         ),
@@ -555,8 +366,8 @@ class _NewFeedsState extends State<NewFeeds> {
                   )
                 ],
               ),
-              new IconButton(
-                icon: new Icon(
+              IconButton(
+                icon: Icon(
                   Icons.more_horiz,
                   size: 30,
                   color: Colors.grey[600],
@@ -565,59 +376,59 @@ class _NewFeedsState extends State<NewFeeds> {
               ),
             ],
           ),
-          new SizedBox(height: 20),
-          new Text(
+          SizedBox(height: 20),
+          Text(
             feedText,
-            style: new TextStyle(
+            style: TextStyle(
                 fontSize: kTextSize - 2,
                 color: Colors.grey[700],
                 height: 1.5,
                 letterSpacing: .7),
           ),
-          new SizedBox(height: 20),
+          SizedBox(height: 20),
           feedImage != ''
-              ? new Container(
-                  height: 250,
-                  decoration: new BoxDecoration(
-                    // borderRadius: BorderRadius.circular(10.0),
-                    image: new DecorationImage(
-                      image: new AssetImage(feedImage),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                )
-              : new Container(),
-          new SizedBox(height: 20),
-          new Row(
+              ? Container(
+            height: 250,
+            decoration: BoxDecoration(
+              // borderRadius: BorderRadius.circular(10.0),
+              image: DecorationImage(
+                image: AssetImage(feedImage),
+                fit: BoxFit.cover,
+              ),
+            ),
+          )
+              : Container(),
+          SizedBox(height: 20),
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              new Row(
+              Row(
                 children: <Widget>[
                   makeLike(),
-                  new Transform.translate(
-                    offset: new Offset(-6, 0),
+                  Transform.translate(
+                    offset: Offset(-6, 0),
                     child: makeLove(),
                   ),
-                  new Text(
+                  Text(
                     "2,5k",
-                    style: new TextStyle(
+                    style: TextStyle(
                       fontSize: kTextSize - 2,
                       color: Colors.grey[800],
                     ),
                   ),
                 ],
               ),
-              new Text(
+              Text(
                 "400 Comments",
-                style: new TextStyle(
+                style: TextStyle(
                   fontSize: kTextSize - 2,
                   color: Colors.grey[800],
                 ),
               ),
             ],
           ),
-          new SizedBox(height: 10),
-          new Row(
+          SizedBox(height: 10),
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               makeLikeButton(isActive: true),
